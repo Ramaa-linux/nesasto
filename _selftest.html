@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Self test</title>
+</head>
+<body>
+  <pre id="hasil">menjalankan...</pre>
+  <script src="js/data.js"></script>
+  <script src="js/utils.js"></script>
+  <script>
+    var log = [];
+    var gagal = 0;
+
+    function cek(nama, kondisi, detail) {
+      if (!kondisi) gagal++;
+      log.push((kondisi ? 'PASS  ' : 'FAIL  ') + nama + (detail ? '  -> ' + detail : ''));
+    }
+
+    /* --- Data --- */
+    cek('APPS berisi 6 aplikasi', APPS.length === 6, 'jumlah=' + APPS.length);
+
+    var ids = APPS.map(function (a) { return a.id; });
+    cek('id unik', new Set(ids).size === ids.length);
+
+    var kategoriUnik = {};
+    var fieldsOk = true;
+    var masalah = '';
+    APPS.forEach(function (a) {
+      kategoriUnik[a.category] = true;
+      var wajib = ['id', 'name', 'tagline', 'category', 'rating', 'ratingCount',
+        'downloads', 'icon', 'version', 'updated', 'size', 'theme',
+        'shortDescription', 'fullDescription', 'highlights', 'screenshots',
+        'changelog', 'developerInfo', 'technical'];
+      wajib.forEach(function (k) {
+        if (a[k] === undefined || a[k] === null) { fieldsOk = false; masalah += a.id + ':' + k + ' '; }
+      });
+      var dOk = ['studio', 'founder', 'founded', 'location', 'website', 'email', 'team', 'appsPublished', 'responseTime'];
+      dOk.forEach(function (k) {
+        if (!a.developerInfo || a.developerInfo[k] === undefined) { fieldsOk = false; masalah += a.id + '.developerInfo.' + k + ' '; }
+      });
+      var tOk = ['version', 'size', 'updated', 'requires', 'license', 'languages', 'ageRating'];
+      tOk.forEach(function (k) {
+        if (!a.technical || a.technical[k] === undefined) { fieldsOk = false; masalah += a.id + '.technical.' + k + ' '; }
+      });
+      if (!a.theme || !a.theme.from || !a.theme.to) { fieldsOk = false; masalah += a.id + '.theme '; }
+      if (!Array.isArray(a.screenshots) || a.screenshots.length < 4) { fieldsOk = false; masalah += a.id + '.screenshots '; }
+      if (!Array.isArray(a.fullDescription) || a.fullDescription.length < 2) { fieldsOk = false; masalah += a.id + '.fullDescription '; }
+      if (!Array.isArray(a.highlights) || a.highlights.length < 3) { fieldsOk = false; masalah += a.id + '.highlights '; }
+      if (!Array.isArray(a.changelog) || a.changelog.length < 3) { fieldsOk = false; masalah += a.id + '.changelog '; }
+    });
+    cek('semua field wajib lengkap', fieldsOk, masalah);
+
+    var kat = Object.keys(kategoriUnik);
+    cek('minimal 3 kategori berbeda', kat.length >= 3, kat.join(', '));
+    cek('kategori Game/Produktivitas/Tools ada',
+      kat.indexOf('Game') !== -1 && kat.indexOf('Produktivitas') !== -1 && kat.indexOf('Tools') !== -1,
+      kat.join(', '));
+
+    cek('CATEGORIES diawali "Semua"', CATEGORIES[0] === 'Semua', CATEGORIES.join(' | '));
+    cek('CATEGORIES jumlah = kategori + 1', CATEGORIES.length === kat.length + 1);
+
+    cek('APP_BY_ID terindeks', Object.keys(APP_BY_ID).length === APPS.length);
+    cek('APP_BY_ID lookup benar', !!(APP_BY_ID['nebula-runner'] && APP_BY_ID['nebula-runner'].name === 'Nebula Runner'));
+
+    APPS.forEach(function (a) {
+      cek('rating ' + a.id + ' antara 0-5', a.rating >= 0 && a.rating <= 5, String(a.rating));
+      a.screenshots.forEach(function (s, i) {
+        if (!s.title || !s.caption) { gagal++; log.push('FAIL  screenshot ' + a.id + '[' + i + '] tidak lengkap'); }
+      });
+      a.changelog.forEach(function (c, i) {
+        if (!c.version || !c.date || !Array.isArray(c.notes) || c.notes.length === 0) {
+          gagal++; log.push('FAIL  changelog ' + a.id + '[' + i + '] tidak lengkap');
+        }
+      });
+    });
+    log.push('PASS  semua screenshot & changelog lengkap');
+
+    /* --- Helper --- */
+    cek('escapeHtml', escapeHtml('<b>"x"&</b>') === '&lt;b&gt;&quot;x&quot;&amp;&lt;/b&gt;', escapeHtml('<b>"x"&</b>'));
+    cek('escapeHtml null', escapeHtml(null) === '');
+    cek('formatRating(4.75)', formatRating(4.75) === '4.8', formatRating(4.75));
+    cek('formatCount(128450)', formatCount(128450).indexOf('128') === 0, formatCount(128450));
+    cek('formatDateLong', formatDateLong('2026-08-28') === '28 Agustus 2026', formatDateLong('2026-08-28'));
+
+    var bintang = starRatingHTML(4.7);
+    cek('starRatingHTML punya 10 svg bintang', (bintang.match(/<svg/g) || []).length === 10);
+    cek('starRatingHTML pakai clip-path', bintang.indexOf('clip-path') !== -1);
+
+    cek('categoryBadge kategori dikenal', categoryBadge('Game').indexOf('fuchsia') !== -1);
+    cek('categoryBadge fallback', categoryBadge('Lain').indexOf('slate') !== -1);
+
+    var tile = iconTile(APPS[0], 'h-16 w-16', 'text-3xl');
+    cek('iconTile berisi gradien+emoji', tile.indexOf('linear-gradient') !== -1 && tile.indexOf(APPS[0].icon) !== -1);
+
+    /* --- Screenshot SVG --- */
+    var svgUri = placeholderSVG(APPS[0], 0);
+    cek('placeholderSVG diawali data URI', svgUri.indexOf('data:image/svg+xml;charset=utf-8,') === 0);
+    var svgText = decodeURIComponent(svgUri.split(',')[1]);
+    cek('SVG valid (tag <svg> & </svg>)', svgText.indexOf('<svg') === 0 && svgText.indexOf('</svg>') === svgText.length - 6);
+    cek('SVG memuat nama aplikasi', svgText.indexOf('NEBULA RUNNER') !== -1);
+    cek('SVG memuat judul screenshot', svgText.indexOf('Menu Utama') !== -1);
+    cek('data URI tidak mengandung "#" mentah', svgUri.indexOf('#') === -1);
+    cek('SVG memakai referensi url(#bg) & url(#fade)',
+      svgText.indexOf('url(#bg)') !== -1 && svgText.indexOf('url(#fade)') !== -1);
+    cek('SVG punya warna hex valid', svgText.indexOf('fill="#080b16"') !== -1);
+
+    for (var v = 0; v < 4; v++) {
+      var s = decodeURIComponent(placeholderSVG(APPS[1], v).split(',')[1]);
+      cek('placeholderSVG varian ' + v + ' valid', s.indexOf('<svg') === 0 && s.indexOf('</svg>') !== -1);
+    }
+
+    /* --- localStorage pada file:// --- */
+    var lsOk = true;
+    var lsErr = '';
+    try {
+      window.localStorage.setItem('__tes__', '1');
+      lsOk = window.localStorage.getItem('__tes__') === '1';
+      window.localStorage.removeItem('__tes__');
+    } catch (e) {
+      lsOk = false;
+      lsErr = e.name + ': ' + e.message;
+    }
+    cek('localStorage tersedia (file://)', lsOk, lsErr || 'ok');
+
+    /* --- Status instalasi (round trip) --- */
+    cek('awalnya belum terinstal', isInstalled('metrocalc') === false);
+    setInstalled('metrocalc', true);
+    cek('setInstalled(true) -> terinstal', isInstalled('metrocalc') === true);
+    setInstalled('metrocalc', false);
+    cek('setInstalled(false) -> tidak terinstal', isInstalled('metrocalc') === false);
+    cek('peta instalasi bersih', Object.keys(getInstalledMap()).length === 0, JSON.stringify(getInstalledMap()));
+
+    document.getElementById('hasil').textContent =
+      log.join('\n') + '\n\n=== RINGKASAN: ' + (log.length - gagal) + ' lulus, ' + gagal + ' gagal ===';
+  </script>
+</body>
+</html>

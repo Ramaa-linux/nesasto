@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Terapkan tema sedini mungkin (sebelum render) supaya tidak berkedip. -->
+  <script>
+    (function () {
+      var theme = 'system';
+      try {
+        theme = window.localStorage.getItem('nesastore-theme') || 'system';
+      } catch (e) {
+        theme = 'system';
+      }
+      if (['light', 'dark', 'system'].indexOf(theme) === -1) theme = 'system';
+      var prefersDark =
+        !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      var isDark = theme === 'dark' || (theme === 'system' && prefersDark);
+      var root = document.documentElement;
+      root.classList.toggle('dark', isDark);
+      root.setAttribute('data-theme', theme);
+    })();
+  </script>
+  <meta name="description" content="NesaStore - App-Store nya warga NESA. Katalog aplikasi mini yang ringan, modern, dan responsif." />
+  <title>NesaStore &mdash; Katalog Aplikasi</title>
+  <link rel="icon" type="image/png" href="img/logo.png" />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      /* Kelas yang hanya dibuat lewat JavaScript, didaftarkan agar tetap
+         digenerate oleh Tailwind Play CDN. */
+      safelist: [
+        'border-fuchsia-500/25', 'bg-fuchsia-500/15', 'text-fuchsia-300',
+        'border-sky-500/25', 'bg-sky-500/15', 'text-sky-300',
+        'border-amber-500/25', 'bg-amber-500/15', 'text-amber-300',
+        'border-pink-500/25', 'bg-pink-500/15', 'text-pink-300',
+        'border-emerald-500/25', 'bg-emerald-500/15', 'text-emerald-300',
+        'border-emerald-500/30', 'bg-emerald-500/10',
+        'border-rose-500/30', 'bg-rose-500/10', 'text-rose-300',
+        'border-brand-400/30', 'bg-brand-500/10', 'text-brand-400',
+        'border-slate-500/25', 'bg-slate-500/15', 'text-slate-300',
+        'h-3.5', 'w-3.5', 'h-4', 'w-4', 'h-5', 'w-5', 'h-12', 'w-12',
+        'h-14', 'w-14', 'h-16', 'w-16', 'h-24', 'w-24', 'h-28', 'w-28',
+        'sm:h-28', 'sm:w-28', 'sm:h-20', 'sm:w-36', 'sm:h-32', 'sm:w-32',
+        'w-28', 'h-20', 'w-36', 'text-xs', 'text-sm', 'text-xl', 'text-2xl',
+        'text-3xl', 'text-5xl', 'text-6xl', 'sm:text-6xl', 'rounded-3xl',
+        /* Tombol instal / hapus (dibuat lewat JavaScript) */
+        'bg-brand-500', 'bg-brand-600', 'hover:bg-brand-600', 'group-hover:bg-brand-600',
+        'w-fit', 'opacity-90',
+        'bg-brand-500/80', 'bg-brand-500/10', 'border-brand-500/50',
+        'text-brand-500', 'text-brand-600', 'dark:text-brand-400',
+        /* Accent kuning dari logo (badge "Terinstal" & bintang) */
+        'border-accent-400/40', 'bg-accent-400/15', 'text-accent-300', 'text-accent-400'
+      ],
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif']
+          },
+          colors: {
+            /* Netral abu ala GitHub Dark. Mode gelap memakai latar SOLID
+               (tanpa gradient/blur) supaya tampilannya tenang & profesional. */
+            ink: {
+              950: '#0d1117',
+              900: '#161b22',
+              850: '#1c2128',
+              800: '#21262d'
+            },
+            /* Primary biru NesaStore (dipakai di mode terang & gelap) */
+            brand: {
+              300: '#8AB4F8',
+              400: '#5E97F6',
+              500: '#1A73E8',
+              600: '#1557B0',
+              700: '#0F4288'
+            },
+            /* Accent kuning dari logo */
+            accent: {
+              300: '#FDE68A',
+              400: '#FCD34D',
+              500: '#F5BE23'
+            }
+          },
+          keyframes: {
+            fadeUp: {
+              '0%':   { opacity: '0', transform: 'translateY(14px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            popIn: {
+              '0%':   { opacity: '0', transform: 'scale(.94)' },
+              '100%': { opacity: '1', transform: 'scale(1)' }
+            },
+            float: {
+              '0%,100%': { transform: 'translateY(0)' },
+              '50%':     { transform: 'translateY(-8px)' }
+            }
+          },
+          animation: {
+            'fade-up': 'fadeUp .45s cubic-bezier(.22,1,.36,1) both',
+            'pop-in': 'popIn .25s cubic-bezier(.22,1,.36,1) both',
+            float: 'float 5s ease-in-out infinite'
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="css/custom.css" />
+</head>
+
+<body class="min-h-screen bg-ink-950 font-sans text-slate-200 antialiased selection:bg-brand-500/40 selection:text-white">
+
+  <!-- Latar dekoratif — HANYA untuk mode terang. Di mode gelap seluruh wadah ini
+       disembunyikan (lihat .deco-light-only pada css/custom.css) sehingga latarnya
+       benar-benar solid #0d1117: tanpa gradient, tanpa blur, tanpa glow. -->
+  <div class="deco-light-only pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute -top-40 -left-32 h-96 w-96 rounded-full bg-brand-600/25 blur-[120px]"></div>
+    <div class="absolute top-1/3 -right-40 h-[28rem] w-[28rem] rounded-full bg-fuchsia-600/15 blur-[140px]"></div>
+    <div class="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-cyan-500/10 blur-[130px]"></div>
+    <div class="absolute inset-0 bg-grid opacity-[0.35]"></div>
+  </div>
+
+  <!-- ===================== HEADER ===================== -->
+  <!-- Header: latar solid #0d1117 + border bawah #21262d di mode gelap
+       (backdrop-blur dimatikan otomatis, lihat .app-header pada css/custom.css). -->
+  <header class="app-header sticky top-0 z-40 border-b border-white/5 bg-ink-950/70 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 sm:gap-4 sm:px-6 sm:py-3 lg:px-8">
+      <!-- Logo saja: wordmark "NesaStore" + tagline sudah menyatu di dalam gambar,
+           jadi teks di sebelahnya dihapus supaya tidak berulang (dan menghemat ruang). -->
+      <a
+        href="#/"
+        id="brand-link"
+        class="group flex min-w-0 shrink-0 items-center"
+        aria-label="NesaStore &mdash; kembali ke katalog"
+      >
+        <img
+          src="img/logo.png"
+          alt="NesaStore"
+          width="2340"
+          height="764"
+          class="h-8 w-auto max-w-[8rem] shrink-0 rounded-lg object-contain transition group-hover:scale-105 sm:h-10 sm:max-w-[11rem] lg:h-12 lg:max-w-[13rem]"
+        />
+      </a>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <nav class="hidden items-center gap-1 text-sm font-medium md:flex">
+          <a href="#/" class="nav-link rounded-lg px-3 py-2 text-slate-300 transition hover:bg-white/5 hover:text-white">Katalog</a>
+          <a href="#/tentang" class="nav-link rounded-lg px-3 py-2 text-slate-300 transition hover:bg-white/5 hover:text-white">Tentang</a>
+          <span class="ml-2 hidden items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 lg:inline-flex">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Demo lokal
+          </span>
+        </nav>
+
+        <!-- Pemilih tema: Terang / Gelap / Sistem -->
+        <div id="theme-toggle" class="segmented" role="group" aria-label="Pilih tema tampilan">
+          <button type="button" class="seg-btn" data-theme-value="light" title="Tema terang" aria-label="Tema terang" aria-pressed="false">
+            <span class="seg-ico" aria-hidden="true">&#9728;&#65039;</span><span class="seg-label">Light</span>
+          </button>
+          <button type="button" class="seg-btn" data-theme-value="dark" title="Tema gelap" aria-label="Tema gelap" aria-pressed="false">
+            <span class="seg-ico" aria-hidden="true">&#127769;</span><span class="seg-label">Dark</span>
+          </button>
+          <button type="button" class="seg-btn" data-theme-value="system" title="Ikuti tema sistem" aria-label="Ikuti tema sistem" aria-pressed="false">
+            <span class="seg-ico" aria-hidden="true">&#128187;</span><span class="seg-label">System</span>
+          </button>
+        </div>
+
+        <button id="header-search-btn" type="button" class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white md:hidden" aria-label="Cari aplikasi">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigasi mobile: baris kedua khusus layar < md supaya "Katalog" & "Tentang"
+         tetap bisa dijangkau tanpa berebut ruang dengan logo + pemilih tema. -->
+    <nav class="border-t border-white/5 md:hidden" aria-label="Navigasi utama">
+      <div class="mx-auto flex max-w-7xl items-center gap-1 px-4 py-1 text-sm font-medium sm:px-6">
+        <a href="#/" class="nav-link flex-1 rounded-lg px-3 py-2 text-center text-slate-300 transition hover:bg-white/5 hover:text-white">Katalog</a>
+        <a href="#/tentang" class="nav-link flex-1 rounded-lg px-3 py-2 text-center text-slate-300 transition hover:bg-white/5 hover:text-white">Tentang</a>
+        <span class="ml-1 inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Demo lokal
+        </span>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="mx-auto w-full max-w-7xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
+
+    <!-- ---------- VIEW: KATALOG ---------- -->
+    <section id="catalog-view" class="animate-fade-up">
+
+      <!-- Hero -->
+      <!-- Panel hero: solid #161b22 di mode gelap (gradient dipakai hanya di mode terang). -->
+      <div class="hero-panel relative overflow-hidden rounded-3xl border border-white/10 p-6 sm:p-10">
+        <div class="deco-light-only pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full bg-brand-500/20 blur-3xl"></div>
+        <div class="relative max-w-2xl">
+          <span class="inline-flex items-center gap-2 rounded-full border border-brand-400/30 bg-brand-500/10 px-3 py-1 text-xs font-semibold text-brand-400">
+            <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-400"></span>
+            <span id="hero-app-count">&mdash;</span> aplikasi tersedia
+          </span>
+          <h1 class="mt-4 text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+            Temukan aplikasi favoritmu
+          </h1>
+          <p class="mt-3 max-w-xl text-sm leading-relaxed text-slate-400 sm:text-base">
+            Jelajahi katalog aplikasi pilihan dari kreator independen. Cari, lihat detail lengkap, baca changelog, lalu instal dalam satu klik.
+          </p>
+
+          <!-- Pencarian -->
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div class="group relative flex-1">
+              <svg class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500 transition group-focus-within:text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+              <input
+                id="search-input"
+                type="search"
+                autocomplete="off"
+                placeholder="Cari aplikasi berdasarkan nama..."
+                class="w-full rounded-2xl border border-white/10 bg-ink-900/80 py-3.5 pl-12 pr-11 text-sm text-white placeholder-slate-500 shadow-inner outline-none transition focus:border-brand-500/60 focus:ring-4 focus:ring-brand-500/15"
+              />
+              <button id="clear-search" type="button" class="absolute right-3 top-1/2 hidden h-7 w-7 -translate-y-1/2 place-items-center rounded-lg text-slate-400 transition hover:bg-white/10 hover:text-white" aria-label="Hapus pencarian">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+              </button>
+            </div>
+            <select id="sort-select" aria-label="Urutkan aplikasi" class="cursor-pointer rounded-2xl border border-white/10 bg-ink-900/80 px-4 py-3.5 text-sm text-slate-200 outline-none transition focus:border-brand-500/60 focus:ring-4 focus:ring-brand-500/15">
+              <option value="populer">Urutkan: Populer</option>
+              <option value="rating">Urutkan: Rating tertinggi</option>
+              <option value="nama">Urutkan: Nama (A-Z)</option>
+              <option value="terbaru">Urutkan: Terbaru</option>
+            </select>
+          </div>
+
+          <!-- Filter kategori -->
+          <div id="category-filters" class="mt-5 flex flex-wrap items-center gap-2"></div>
+        </div>
+      </div>
+
+      <!-- Baris hasil -->
+      <div class="mt-8 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-bold text-white">Katalog Aplikasi</h2>
+          <p id="results-count" class="mt-0.5 text-sm text-slate-400">&mdash;</p>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div id="app-grid" class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"></div>
+
+      <!-- Kosong -->
+      <div id="empty-state" class="mt-4 hidden rounded-3xl border border-dashed border-white/10 bg-white/[0.02] px-6 py-16 text-center">
+        <div class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-white/5 text-slate-500">
+          <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        </div>
+        <h3 class="mt-4 text-base font-semibold text-white">Aplikasi tidak ditemukan</h3>
+        <p class="mt-1 text-sm text-slate-400">Coba kata kunci lain atau ubah filter kategori.</p>
+        <button id="reset-filters" type="button" class="mt-5 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">Reset filter</button>
+      </div>
+    </section>
+
+    <!-- ---------- VIEW: DETAIL ---------- -->
+    <section id="detail-view" class="hidden"></section>
+
+    <!-- ---------- VIEW: TENTANG ---------- -->
+    <section id="about-view" class="hidden"></section>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="border-t border-white/5 bg-ink-950/60 py-8">
+    <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 text-sm text-slate-500 sm:flex-row sm:px-6 lg:px-8">
+      <p>&copy; <span id="year">&mdash;</span> NesaStore &mdash; App-Store nya warga NESA. Demo katalog aplikasi yang dibuat dengan HTML, Tailwind CSS &amp; Vanilla JavaScript.</p>
+      <p class="flex items-center gap-2">
+        <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Semua data bersifat dummy.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Toast -->
+  <div id="toast-container" class="pointer-events-none fixed bottom-5 right-5 z-50 flex w-[calc(100%-2.5rem)] max-w-sm flex-col gap-3 sm:w-full"></div>
+
+  <!-- Scripts (urutan penting) -->
+  <script src="js/data.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
