@@ -1,7 +1,7 @@
 /* ==========================================================================
    NesaStore - app.js
    Logika utama: router berbasis hash (tanpa reload), katalog, pencarian,
-   filter kategori, halaman detail, tab, galeri, dan tombol instal.
+   filter kategori, halaman detail, tab, galeri, dan unduhan berkas APK.
    ========================================================================== */
 
 (function () {
@@ -85,15 +85,9 @@
     return salinan;
   }
 
-  function installedPill(app) {
-    if (!isInstalled(app.id)) return '';
-    return (
-      '<span class="tag-neutral inline-flex shrink-0 items-center gap-1 rounded-full border border-accent-400/40 bg-accent-400/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-accent-300">' +
-      '<svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>' +
-      'Terinstal' +
-      '</span>'
-    );
-  }
+  /* Lencana ketersediaan APK dihasilkan oleh apkStatusBadge() (js/utils.js).
+     Tidak ada lagi status "terinstal" di sisi klien: NesaStore hanya
+     mendistribusikan berkas .apk. */
 
   /* ---------------------------------------------------------- Kartu aplikasi */
   function appCardHTML(app) {
@@ -111,13 +105,13 @@
       '<h3 class="truncate text-base font-bold text-white">' +
       escapeHtml(app.name) +
       '</h3>' +
-      installedPill(app) +
       '</div>' +
       '<p class="mt-0.5 truncate text-xs text-slate-400">' +
       escapeHtml(app.developerInfo.studio) +
       '</p>' +
-      '<div class="mt-2.5">' +
+      '<div class="mt-2.5 flex flex-wrap items-center gap-2">' +
       categoryBadge(app.category) +
+      apkStatusBadge(app) +
       '</div>' +
       '</div>' +
       '</div>' +
@@ -146,7 +140,7 @@
       escapeHtml(app.downloads) +
       ' unduhan</span>' +
       '</div>' +
-      '<span class="btn-install inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 py-2 text-xs font-bold text-white shadow-lg shadow-brand-500/25 transition group-hover:bg-brand-600">' +
+      '<span class="btn-primary inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 py-2 text-xs font-bold text-white shadow-lg shadow-brand-500/25 transition group-hover:bg-brand-600">' +
       'Lihat Detail' +
       '<svg class="h-3.5 w-3.5 transition group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>' +
       '</span>' +
@@ -193,71 +187,58 @@
     '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"></path></svg>';
   var ICON_SPINNER =
     '<svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.2-8.56" opacity="0.9"></path></svg>';
-  var ICON_CHECK =
-    '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>';
-  var ICON_TRASH =
-    '<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"></path></svg>';
+  /* Lama hitung mundur (detik) sebelum berkas APK mulai diunduh. */
+  var COUNTDOWN_SECONDS = 5;
 
-  /* id aplikasi yang sedang diproses instalasinya */
-  var inProgress = {};
+  /* id aplikasi yang sedang menyiapkan unduhan + timer hitung mundurnya */
+  var preparing = {};
+  var countdownTimers = {};
 
-  function installView(app) {
-    if (inProgress[app.id]) return 'installing';
-    if (isInstalled(app.id)) return 'installed';
-    return 'idle';
+  function downloadButtonClasses(app) {
+    if (preparing[app.id]) {
+      return 'btn-primary bg-brand-500/80 text-white cursor-wait';
+    }
+    if (!hasApk(app)) {
+      return 'border border-white/10 bg-white/5 text-slate-400 cursor-not-allowed opacity-90';
+    }
+    return 'btn-primary bg-brand-500 text-white shadow-lg shadow-brand-500/30 hover:bg-brand-600 active:scale-[0.98]';
   }
 
-  function installButtonClasses(view) {
-    if (view === 'installed') {
-      return 'bg-brand-500 text-white opacity-90 cursor-default';
-    }
-    if (view === 'installing') {
-      return 'bg-brand-500/80 text-white cursor-wait';
-    }
-    return 'bg-brand-500 text-white shadow-lg shadow-brand-500/30 hover:bg-brand-600 active:scale-[0.98]';
-  }
+  /**
+   * Panel unduh APK pada halaman detail.
+   *   - apkUrl ada    -> tombol "Download APK" (biru solid) + hitung mundur 5 detik
+   *   - apkUrl kosong -> tombol dinonaktifkan, lencana "Segera Hadir"
+   */
+  function downloadAreaHTML(app) {
+    var siap = hasApk(app);
+    var menyiapkan = !!preparing[app.id];
 
-  function installAreaHTML(app) {
-    var view = installView(app);
-    var label = 'Instal Sekarang';
-    var icon = ICON_DOWNLOAD;
-    if (view === 'installing') {
-      label = 'Menginstal...';
-      icon = ICON_SPINNER;
-    } else if (view === 'installed') {
-      label = 'Terinstal!';
-      icon = ICON_CHECK;
-    }
+    var label = menyiapkan ? 'Menyiapkan... ' + COUNTDOWN_SECONDS : 'Download APK';
+    var icon = menyiapkan ? ICON_SPINNER : ICON_DOWNLOAD;
+    var disabled = !siap || menyiapkan;
 
-    var hint = 'Gratis &middot; ' + escapeHtml(app.size) + ' &middot; tanpa akun';
-    if (view === 'installing') hint = 'Menyiapkan berkas aplikasi...';
-    if (view === 'installed') hint = 'Aplikasi siap dijalankan di perangkat ini.';
-
-    var uninstall =
-      view === 'installed'
-        ? '<button id="uninstall-btn" type="button" class="mx-auto mt-3 flex w-fit items-center gap-1.5 rounded-lg border border-brand-500/50 px-3 py-1.5 text-xs font-semibold text-brand-500 transition hover:bg-brand-500/10 dark:text-brand-400">' +
-          ICON_TRASH +
-          'Hapus instalasi</button>'
-        : '';
+    var hint = siap
+      ? 'Gratis &middot; ' + escapeHtml(app.size) + ' &middot; tanpa akun'
+      : 'APK belum tersedia untuk diunduh.';
+    if (menyiapkan) hint = 'Menyiapkan tautan unduhan...';
 
     return (
       '<div class="rounded-2xl border border-white/10 bg-ink-900/60 p-4">' +
-      '<p class="mb-3 text-center text-[11px] font-bold uppercase tracking-widest text-slate-500">Pasang aplikasi</p>' +
-      '<button id="install-btn" type="button" ' +
-      (view === 'installing' || view === 'installed' ? 'disabled ' : '') +
-      'class="btn-install inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition ' +
-      installButtonClasses(view) +
+      '<p class="mb-3 text-center text-[11px] font-bold uppercase tracking-widest text-slate-500">Unduh APK</p>' +
+      '<button id="download-btn" type="button" ' +
+      (disabled ? 'disabled ' : '') +
+      'class="inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition ' +
+      downloadButtonClasses(app) +
       '">' +
       icon +
-      '<span>' +
+      '<span id="download-btn-label">' +
       label +
       '</span>' +
       '</button>' +
-      '<div id="install-progress" class="progress-track mt-3 ' +
-      (view === 'installing' ? '' : 'hidden') +
-      '"><div id="install-progress-fill" class="progress-fill"></div></div>' +
-      uninstall +
-      '<p id="install-hint" class="mt-3 text-center text-[11px] text-slate-500">' +
+      '<div id="download-progress" class="progress-track mt-3 ' +
+      (menyiapkan ? '' : 'hidden') +
+      '"><div id="download-progress-fill" class="progress-fill"></div></div>' +
+      '<p id="download-hint" class="mt-3 text-center text-[11px] text-slate-500">' +
       hint +
       '</p>' +
       '<div class="mt-3 flex items-center justify-center gap-2 border-t border-white/5 pt-3 text-[11px] text-slate-500">' +
@@ -318,10 +299,10 @@
           escapeHtml(shot.title) +
           '">' +
           '<img src="' +
-          placeholderSVG(app, i) +
+          escapeHtml(screenshotSrc(app, i)) +
           '" alt="' +
           escapeHtml(shot.title) +
-          '" class="h-16 w-28 object-cover sm:h-20 sm:w-36" loading="lazy" />' +
+          '" class="h-20 w-12 object-cover sm:h-24 sm:w-14" loading="lazy" />' +
           '</button>'
         );
       })
@@ -329,26 +310,18 @@
 
     return (
       '<div>' +
-      '<div class="relative overflow-hidden rounded-2xl border border-white/10 bg-ink-900">' +
+      /* Screenshot aplikasi berbentuk potret (1080x2400), jadi panggung
+         utamanya pun potret (kelas .shot-stage pada css/custom.css). */
+      '<div class="shot-stage">' +
       '<img id="shot-main" src="' +
-      placeholderSVG(app, 0) +
+      escapeHtml(screenshotSrc(app, 0)) +
       '" alt="' +
       escapeHtml(app.screenshots[0].title) +
-      '" class="aspect-video w-full object-cover" />' +
-      '<div class="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 bg-gradient-to-t from-black/80 to-transparent p-4 sm:p-6">' +
-      '<div class="min-w-0">' +
-      '<p id="shot-title" class="truncate text-sm font-bold text-white sm:text-base">' +
-      escapeHtml(app.screenshots[0].title) +
-      '</p>' +
-      '<p id="shot-caption" class="mt-0.5 truncate text-xs text-slate-300">' +
-      escapeHtml(app.screenshots[0].caption) +
-      '</p>' +
-      '</div>' +
-      '<span class="shrink-0 rounded-full bg-black/50 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur">' +
+      '" />' +
+      '<span class="absolute right-3 top-3 rounded-full bg-black/50 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur">' +
       '<span id="shot-index">1</span>/' +
       app.screenshots.length +
       '</span>' +
-      '</div>' +
       '<button type="button" id="shot-prev" class="absolute left-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-black/50 text-white backdrop-blur transition hover:bg-black/70" aria-label="Sebelumnya">' +
       '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>' +
       '</button>' +
@@ -356,7 +329,15 @@
       '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>' +
       '</button>' +
       '</div>' +
-      '<div class="no-scrollbar mt-4 flex gap-3 overflow-x-auto pb-1">' +
+      '<div class="mt-4 text-center">' +
+      '<p id="shot-title" class="text-sm font-bold text-white sm:text-base">' +
+      escapeHtml(app.screenshots[0].title) +
+      '</p>' +
+      '<p id="shot-caption" class="mt-1 text-xs text-slate-400">' +
+      escapeHtml(app.screenshots[0].caption) +
+      '</p>' +
+      '</div>' +
+      '<div class="no-scrollbar mt-4 flex justify-center gap-3 overflow-x-auto pb-1">' +
       thumbs +
       '</div>' +
       '</div>'
@@ -607,8 +588,10 @@
       '</div>' +
       '</div>' +
 
-      '<div class="w-full shrink-0 lg:w-72" id="install-area">' +
-      installAreaHTML(app) +
+      '<div class="w-full shrink-0 lg:w-72" id="download-area" data-app-id="' +
+      escapeHtml(app.id) +
+      '">' +
+      downloadAreaHTML(app) +
       '</div>' +
       '</div>' +
 
@@ -714,59 +697,79 @@
     bindDetailEvents(app);
   }
 
-  /* --------------------------------------------- Area instal (render ulang) */
-  function refreshInstallArea(app) {
-    var area = byId('install-area');
-    if (!area) return;
+  /* ------------------------------------------ Area unduh (render ulang) */
+  function refreshDownloadArea(app) {
+    var area = byId('download-area');
+    if (!area || area.getAttribute('data-app-id') !== app.id) return;
 
-    area.innerHTML = installAreaHTML(app);
+    area.innerHTML = downloadAreaHTML(app);
 
-    var btn = byId('install-btn');
+    var btn = byId('download-btn');
     if (btn) {
       btn.addEventListener('click', function () {
-        startInstall(app);
-      });
-    }
-
-    var uninstall = byId('uninstall-btn');
-    if (uninstall) {
-      uninstall.addEventListener('click', function () {
-        if (!window.confirm('Hapus instalasi "' + app.name + '" dari perangkat ini?')) return;
-        setInstalled(app.id, false);
-        toast(app.name + ' telah dihapus dari perangkat.', 'hapus');
-        refreshInstallArea(app);
-        renderCatalog();
+        startDownload(app);
       });
     }
   }
 
-  /* ------------------------------------------------ Simulasi proses instal */
-  function startInstall(app) {
-    if (inProgress[app.id] || isInstalled(app.id)) return;
+  /* ------------------------ Hitung mundur 5 detik, lalu picu unduhan APK */
+  function startDownload(app) {
+    if (preparing[app.id]) return;
 
-    inProgress[app.id] = true;
-    refreshInstallArea(app);
-    toast('Mengunduh ' + app.name + ' (' + app.size + ')...', 'info', 2200);
+    if (!hasApk(app)) {
+      toast('APK belum tersedia', 'hapus');
+      return;
+    }
 
-    var fill = byId('install-progress-fill');
-    var progress = 0;
+    preparing[app.id] = true;
+    refreshDownloadArea(app);
 
-    var timer = window.setInterval(function () {
-      progress += Math.random() * 16 + 9;
-      if (progress > 100) progress = 100;
-      if (fill) fill.style.width = progress.toFixed(1) + '%';
+    var fill = byId('download-progress-fill');
+    var label = byId('download-btn-label');
+    var total = COUNTDOWN_SECONDS;
+    var detik = 0;
 
-      if (progress >= 100) {
-        window.clearInterval(timer);
+    if (fill) fill.style.width = '0%';
+
+    countdownTimers[app.id] = window.setInterval(function () {
+      detik++;
+      if (fill) fill.style.width = ((detik / total) * 100).toFixed(1) + '%';
+      if (label) label.textContent = 'Menyiapkan... ' + (total - detik);
+
+      if (detik >= total) {
+        window.clearInterval(countdownTimers[app.id]);
+        delete countdownTimers[app.id];
         window.setTimeout(function () {
-          delete inProgress[app.id];
-          setInstalled(app.id, true);
-          toast(app.name + ' berhasil diinstal!', 'sukses');
-          refreshInstallArea(app);
-          renderCatalog();
-        }, 420);
+          delete preparing[app.id];
+          triggerDownload(app);
+          toast('Mengunduh ' + app.name + '...', 'info');
+          refreshDownloadArea(app);
+        }, 320);
       }
-    }, 230);
+    }, 1000);
+  }
+
+  /* Batalkan hitung mundur yang belum tuntas (mis. pengguna pindah halaman). */
+  function cancelCountdown(id) {
+    if (countdownTimers[id]) {
+      window.clearInterval(countdownTimers[id]);
+      delete countdownTimers[id];
+    }
+    delete preparing[id];
+  }
+
+  /* Memicu unduhan berkas APK lewat tautan tersembunyi. */
+  function triggerDownload(app) {
+    var link = document.createElement('a');
+    link.href = app.apkUrl;
+    link.download = app.id + '-v' + app.version + '.apk';
+    link.rel = 'noopener';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    window.setTimeout(function () {
+      if (link.parentNode) link.parentNode.removeChild(link);
+    }, 0);
   }
 
   /* -------------------------------------------------- Event pada halaman detail */
@@ -804,12 +807,29 @@
     var indexEl = byId('shot-index');
     var thumbs = root.querySelectorAll('[data-shot]');
 
+    /* Cadangan galeri: bila berkas .jpg gagal dimuat, tampilkan placeholder SVG
+       agar galeri tidak pernah kosong. */
+    function pasangCadangan(img, shotIndex) {
+      if (!img) return;
+      img.addEventListener('error', function () {
+        if (img.getAttribute('data-fallback') === '1') return;
+        img.setAttribute('data-fallback', '1');
+        img.setAttribute('src', placeholderSVG(app, shotIndex));
+      });
+    }
+    pasangCadangan(mainImg, 0);
+    Array.prototype.forEach.call(thumbs, function (t, i) {
+      pasangCadangan(t.querySelector('img'), i);
+    });
+
     function showShot(next) {
       index = (next + shots.length) % shots.length;
       if (mainImg) {
         mainImg.style.opacity = '0';
-        var src = placeholderSVG(app, index);
+        var src = screenshotSrc(app, index);
         window.setTimeout(function () {
+          /* Penanda cadangan dilepas supaya berkas asli tetap dicoba lagi. */
+          mainImg.removeAttribute('data-fallback');
           mainImg.setAttribute('src', src);
           mainImg.setAttribute('alt', shots[index].title);
           mainImg.style.opacity = '1';
@@ -834,8 +854,8 @@
     if (prev) prev.addEventListener('click', function () { showShot(index - 1); });
     if (next) next.addEventListener('click', function () { showShot(index + 1); });
 
-    /* --- Tombol instal --- */
-    refreshInstallArea(app);
+    /* --- Tombol unduh APK --- */
+    refreshDownloadArea(app);
   }
 
   /* ================================================================== TENTANG */
@@ -865,7 +885,7 @@
       '<div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">' +
       aboutCard('HTML5', 'Struktur halaman dan markup semantik tanpa framework.') +
       aboutCard('Tailwind CSS', 'Ditambahkan melalui CDN untuk penataan gaya yang cepat.') +
-      aboutCard('Vanilla JavaScript', 'Routing hash, pencarian, tab, galeri, dan simulasi instal.') +
+      aboutCard('Vanilla JavaScript', 'Routing hash, pencarian, tab, galeri, dan unduhan APK.') +
       aboutCard('Tanpa server', 'Cukup dibuka langsung lewat peramban (protocol file://).') +
       '</div>' +
 
@@ -875,9 +895,9 @@
       aboutStep(1, 'Ketik nama aplikasi pada kolom pencarian untuk menyaring katalog.') +
       aboutStep(2, 'Pilih kategori atau ubah urutan daftar sesuai keinginan.') +
       aboutStep(3, 'Klik kartu aplikasi atau tombol "Lihat Detail" untuk membuka halaman detail.') +
-      aboutStep(4, 'Tekan tombol "Instal Sekarang" dan lihat statusnya berubah hingga "Terinstal!".') +
+      aboutStep(4, 'Tekan tombol "Download APK", tunggu hitung mundur 5 detik, lalu berkas APK mulai diunduh.') +
       '</ol>' +
-      '<p class="mt-5 text-xs text-slate-500">Status instalasi disimpan di localStorage peramban, sehingga tetap tersimpan setelah halaman dimuat ulang.</p>' +
+      '<p class="mt-5 text-xs text-slate-500">NesaStore hanya mendistribusikan berkas APK. Proses pemasangan ke perangkat dilakukan di luar situs ini.</p>' +
       '</div>' +
       '</div>';
   }
@@ -1038,6 +1058,11 @@
 
   function router() {
     var route = parseRoute();
+
+    /* Batalkan hitung mundur unduhan yang tertinggal saat pindah halaman. */
+    Object.keys(countdownTimers).forEach(function (id) {
+      if (route.view !== 'detail' || route.id !== id) cancelCountdown(id);
+    });
 
     if (route.view === 'detail') {
       var app = getAppById(route.id);

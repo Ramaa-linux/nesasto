@@ -83,12 +83,32 @@ body {
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Efek kilau lembut pada tombol */
-.btn-install {
+/* --- Tile ikon aplikasi (emoji atau berkas gambar) --- */
+.app-tile {
   position: relative;
   overflow: hidden;
 }
-.btn-install::after {
+/* Ikon dari berkas gambar (img/asset/icon/<id>.png) memenuhi tile. */
+.app-tile-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Cadangan bila berkas ikon gagal dimuat: huruf inisial nama aplikasi. */
+.app-tile-initial {
+  color: #ffffff;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* Efek kilau lembut pada tombol utama (Download APK / Lihat Detail) */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -96,7 +116,7 @@ body {
   transform: translateX(-100%);
   pointer-events: none;
 }
-.btn-install:not([disabled]):hover::after {
+.btn-primary:not([disabled]):hover::after {
   animation: shimmer-slide 0.9s ease forwards;
 }
 @keyframes shimmer-slide {
@@ -105,7 +125,7 @@ body {
   }
 }
 
-/* --- Progress bar instal --- */
+/* --- Progress bar unduhan APK --- */
 .progress-track {
   height: 4px;
   border-radius: 9999px;
@@ -135,7 +155,29 @@ body {
   opacity: 1;
   outline-color: rgba(26, 115, 232, 0.9);
 }
+.shot-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Panggung screenshot: gambar aplikasi berbentuk potret (1080x2400), jadi
+   bingkai utamanya dibuat potret seperti layar ponsel. */
+.shot-stage {
+  position: relative;
+  margin-inline: auto;
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 9 / 20;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.75rem;
+  background: #080b16;
+}
 #shot-main {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   transition: opacity 0.3s ease;
 }
 
@@ -327,13 +369,12 @@ html:not(.dark) [class~="text-amber-300"]   { color: #b45309 !important; }
 html:not(.dark) [class~="text-pink-300"]    { color: #be185d !important; }
 html:not(.dark) [class~="text-emerald-300"] { color: #047857 !important; }
 html:not(.dark) [class~="text-rose-300"]    { color: #be123c !important; }
-html:not(.dark) [class~="text-accent-300"]  { color: #92400e !important; }
 /* Angka rating & bintang kuning: dibikin lebih gelap agar terbaca di atas putih */
 html:not(.dark) [class~="text-amber-400"]   { color: #b45309 !important; }
 html:not(.dark) [class~="text-accent-400"]  { color: #a16207 !important; }
 
 /* Tombol biru solid tetap memakai teks putih */
-html:not(.dark) .btn-install { color: #ffffff !important; }
+html:not(.dark) .btn-primary { color: #ffffff !important; }
 
 /* Konten di atas gambar gelap tetap terang */
 html:not(.dark) [class~="from-black/80"] [class~="text-white"],
@@ -457,14 +498,14 @@ html.dark .app-tile {
 }
 
 /* --- 7) Shadow berwarna / glow dihapus -------------------------------- */
-html.dark .btn-install,
+html.dark .btn-primary,
 html.dark .category-chip { box-shadow: none !important; }
 html.dark .seg-btn.is-active,
 html.dark .seg-btn.is-active:hover { box-shadow: none; }
 html.dark .toast { box-shadow: 0 10px 28px -12px rgba(0, 0, 0, 0.7); }
 
 /* --- 8) Shimmer & animasi neon dimatikan ------------------------------ */
-html.dark .btn-install::after { display: none !important; }
+html.dark .btn-primary::after { display: none !important; }
 html.dark [class~="animate-pulse"] { animation: none !important; }
 
 /* --- 9) Kartu: hover pelan & netral, tanpa glow biru ------------------ */
@@ -475,7 +516,7 @@ html.dark .app-card:hover {
 }
 html.dark .app-card:hover .app-card-icon { transform: scale(1.04); }
 
-/* --- 10) Progress instal, tab aktif, pemilih tema --------------------- */
+/* --- 10) Progress unduhan, tab aktif, pemilih tema -------------------- */
 html.dark .progress-track { background: #21262d; }
 html.dark .progress-fill  { background: #1a73e8; background-image: none; }
 html.dark .tab-btn.is-active {

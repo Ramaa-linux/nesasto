@@ -1,506 +1,264 @@
 /* ==========================================================================
    NesaStore - data.js
-   Data dummy katalog aplikasi. Semua konten bersifat fiktif.
+   Data katalog aplikasi NesaStore.
    Struktur satu objek aplikasi:
    {
      id, name, tagline, category, rating, ratingCount, downloads,
-     icon (emoji), version, updated (ISO), size,
-     theme: { from, to, accent },        // dipakai untuk ikon & screenshot
+     icon (path gambar 'img/asset/icon/<id>.png'; boleh juga emoji),
+     version, updated (ISO), size, apkUrl (string; '' = segera hadir),
+     theme: { from, to, accent },        // untuk glow ikon & screenshot cadangan
      shortDescription, fullDescription: [], highlights: [],
-     screenshots: [{ title, caption }],
+     screenshots: [{ title, caption, src }],   // src = path gambar asli
      changelog: [{ version, date, type, notes: [] }],
      developerInfo: { studio, founder, founded, location, website, email, team, appsPublished, responseTime },
-     technical: { version, size, updated, requires, license, languages, ageRating, downloads, category }
+     technical: { version, size, updated, requires, license, languages, ageRating }
    }
    ========================================================================== */
 
+/* Catatan aset (mengikuti folder yang sudah ada di repo):
+     - Ikon  : img/asset/icon/<id>.png
+     - Screenshot : img/asset/screenshoot/<id>/<id>-<n>.jpg
+   Bila sebuah berkas belum tersedia, iconTile() otomatis jatuh ke huruf
+   inisial dan galeri jatuh ke gambar placeholder SVG, jadi tampilan tetap rapi.
+
+   Catatan apkUrl: tautan mengarah ke GitHub Releases. Aplikasi dengan apkUrl
+   kosong ('') akan ditandai lencana "Segera Hadir" dan tombol unduhnya
+   dinonaktifkan. */
 const APPS = [
   /* ------------------------------------------------------------------ 1 */
   {
-    id: 'nebula-runner',
-    name: 'Nebula Runner',
-    tagline: 'Lari tanpa batas di galaksi neon',
-    category: 'Game',
-    rating: 4.8,
-    ratingCount: 128450,
-    downloads: '2,4 jt',
-    icon: '🚀',
-    version: '3.2.1',
-    updated: '2026-08-28',
-    size: '186 MB',
-    theme: { from: '#6366f1', to: '#a855f7', accent: '#22d3ee' },
+    id: 'fiks-faham',
+    name: 'FiksFaham',
+    tagline: 'Belajar UI/UX jadi lebih paham',
+    category: 'Produktivitas',
+    rating: 0,
+    ratingCount: 0,
+    downloads: '0',
+    icon: 'img/asset/icon/fiks-faham.png',
+    version: '1.0.0',
+    updated: '2026-10-04',
+    size: '30 MB',
+    apkUrl: 'https://github.com/Ramaa-linux/nesasto/releases/latest/download/fiks-faham.apk',
+    theme: { from: '#f59e0b', to: '#ef4444', accent: '#fbbf24' },
     shortDescription:
-      'Endless runner bertema luar angkasa dengan kontrol satu jari dan grafis neon yang memukau.',
+      'Platform edukasi UI/UX dengan materi, pre-test, post-test, dan video pembelajaran.',
     fullDescription: [
-      'Nebula Runner adalah game endless runner yang membawamu melintasi lima galaksi berbeda. Geser, lompat, dan meluncur untuk melewati rintangan asteroid sambil mengumpulkan kristal energi untuk membuka skin dan kapal baru.',
-      'Setiap galaksi memiliki mekanika unik: gravitasi rendah di Selene, badai meteor di Kraken, hingga lorong cermin di Vantablack. Sistem misi harian dan papan peringkat global menjaga permainan tetap menantang untuk waktu yang lama.',
-      'Game ini dioptimalkan untuk perangkat kelas menengah ke bawah, berjalan lancar bahkan tanpa koneksi internet, dan tidak menampilkan iklan pop-up yang mengganggu.'
+      'FiksFaham adalah platform edukasi yang membantu kamu memahami UI/UX dari dasar hingga mahir. Tersedia materi terstruktur, pre-test untuk mengukur kemampuan awal, post-test untuk evaluasi, dan video materi yang mudah dipahami.',
+      'Setiap materi disusun oleh praktisi UI/UX berpengalaman, dengan studi kasus nyata yang relevan dengan kebutuhan industri. Cocok untuk pemula maupun yang ingin memperdalam skill desain.',
+      'Belajar kapan aja, di mana aja tanpa perlu install tools tambahan. Semua materi bisa diakses langsung dari aplikasi.'
     ],
     highlights: [
-      '5 galaksi dengan mekanika gravitasi berbeda',
-      'Lebih dari 40 skin kapal yang bisa dibuka',
-      'Mode offline penuh tanpa iklan pop-up',
-      'Papan peringkat mingguan dan misi harian'
+      'Materi UI/UX terstruktur dari dasar hingga mahir',
+      'Pre-test & post-test untuk evaluasi',
+      'Video materi berkualitas tinggi',
+      'Studi kasus nyata dari industri'
     ],
     screenshots: [
-      { title: 'Menu Utama', caption: 'Antarmuka utama dengan pemilihan galaksi.' },
-      { title: 'Permainan', caption: 'Kontrol satu jari saat menerjang rintangan asteroid.' },
-      { title: 'Toko Skin', caption: 'Buka 40+ skin kapal memakai kristal energi.' },
-      { title: 'Statistik', caption: 'Pantau rekor jarak, kombo, dan pencapaian.' }
+      { title: 'Home & Progress', caption: 'Pantau capaian Level 1-4, nilai quiz, dan posttest.', src: 'img/asset/screenshoot/fiks-faham/fiks-faham-1.jpg' },
+      { title: 'Course UI/UX', caption: 'Empat level materi lengkap dengan quiz tiap level.', src: 'img/asset/screenshoot/fiks-faham/fiks-faham-2.jpg' },
+      { title: 'Eksplorasi Materi', caption: 'Video tutorial UI/UX pilihan dari para kreator.', src: 'img/asset/screenshoot/fiks-faham/fiks-faham-3.jpg' },
+      { title: 'Detail Level', caption: 'Daftar sub-topik materi beserta tab quiz.', src: 'img/asset/screenshoot/fiks-faham/fiks-faham-4.jpg' }
     ],
     changelog: [
-      {
-        version: '3.2.1',
-        date: '28 Agustus 2026',
-        type: 'Perbaikan',
-        notes: [
-          'Memperbaiki crash saat berpindah galaksi di perangkat RAM 2 GB.',
-          'Mengurangi ukuran unduhan sekitar 12 MB.'
-        ]
-      },
-      {
-        version: '3.2.0',
-        date: '11 Agustus 2026',
-        type: 'Fitur baru',
-        notes: [
-          'Menambahkan galaksi keenam: Vantablack.',
-          'Skin kapal baru bertema aurora.',
-          'Mode latihan tanpa batas waktu.'
-        ]
-      },
-      {
-        version: '3.1.4',
-        date: '22 Juli 2026',
-        type: 'Perbaikan',
-        notes: [
-          'Menyeimbangkan tingkat kesulitan di zona Kraken.',
-          'Memperbaiki sinkronisasi papan peringkat.'
-        ]
-      },
-      {
-        version: '3.1.0',
-        date: '30 Juni 2026',
-        type: 'Fitur baru',
-        notes: [
-          'Sistem misi harian dengan hadiah kristal.',
-          'Dukungan getaran haptic yang dapat dimatikan.'
-        ]
-      }
+      { version: '1.0.0', date: '4 Oktober 2026', type: 'Rilis pertama', notes: ['Rilis perdana FiksFaham.', 'Fitur: materi, pre-test, post-test, video.'] }
     ],
     developerInfo: {
-      studio: 'PixelForge Studio',
-      founder: 'Rangga Prawira & Sari Anjani',
-      founded: '2019',
-      location: 'Bandung, Indonesia',
-      website: 'pixelforge.example.com',
-      email: 'halo@pixelforge.example.com',
-      team: '14 orang',
-      appsPublished: 7,
-      responseTime: 'Rata-rata 1 hari kerja'
+      studio: 'Faiza & Fishabella',
+      founder: 'Faiza, Fishabella',
+      founded: '2026',
+      location: 'Surabaya, Indonesia',
+      website: '-',
+      email: '-',
+      team: '2 orang',
+      appsPublished: 1,
+      responseTime: '-'
     },
     technical: {
-      version: '3.2.1',
-      size: '186 MB',
-      updated: '28 Agustus 2026',
-      requires: 'Android 8.0+ / iOS 14+ / Windows 10+',
-      license: 'Gratis (dengan pembelian dalam aplikasi)',
-      languages: 'Bahasa Indonesia, English, 日本語',
-      ageRating: '7+ (Aksi ringan)'
+      version: '1.0.0',
+      size: '30 MB',
+      updated: '4 Oktober 2026',
+      requires: 'Android 8.0+',
+      license: 'Gratis',
+      languages: 'Bahasa Indonesia',
+      ageRating: '3+ (Semua umur)'
     }
   },
 
   /* ------------------------------------------------------------------ 2 */
   {
-    id: 'taskflow-pro',
-    name: 'TaskFlow Pro',
-    tagline: 'Kelola tugas dan proyek tanpa ribet',
+    id: 'net-skill',
+    name: 'NetSkill',
+    tagline: 'Kuasai jaringan komputer dari nol',
     category: 'Produktivitas',
-    rating: 4.7,
-    ratingCount: 64210,
-    downloads: '980 rb',
-    icon: '✅',
-    version: '5.0.3',
-    updated: '2026-09-14',
-    size: '42 MB',
+    rating: 0,
+    ratingCount: 0,
+    downloads: '0',
+    icon: 'img/asset/icon/net-skill.png',
+    version: '1.0.0',
+    updated: '2026-10-04',
+    size: '26 MB',
+    apkUrl: 'https://github.com/Ramaa-linux/nesasto/releases/latest/download/net-skill.apk',
     theme: { from: '#0ea5e9', to: '#14b8a6', accent: '#818cf8' },
     shortDescription:
-      'Manajer tugas dengan papan Kanban, sub-tugas, pengingat, dan mode fokus bawaan.',
+      'Platform edukasi jaringan komputer dengan materi lengkap, pre-test, dan post-test.',
     fullDescription: [
-      'TaskFlow Pro membantu individu dan tim kecil mengatur pekerjaan dengan papan Kanban yang ringan, cepat, dan mudah dipelajari. Seret kartu antar kolom, atur tenggat, dan lihat progres proyek dalam sekali pandang.',
-      'Fitur pengingat pintar menyesuaikan waktu notifikasi berdasarkan kebiasaanmu. Mode Fokus menyembunyikan semua gangguan dan memulai penghitung waktu Pomodoro otomatis dari tugas yang sedang dikerjakan.',
-      'Semua data tersimpan secara lokal dan dapat diekspor ke JSON atau CSV, sehingga tetap aman walau tanpa koneksi internet.'
+      'NetSkill adalah platform edukasi yang fokus pada jaringan komputer. Tersedia materi terstruktur mulai dari dasar networking, subnetting, routing, hingga konfigurasi perangkat jaringan.',
+      'Setiap materi dilengkapi pre-test dan post-test untuk mengukur pemahaman kamu. Cocok untuk mahasiswa, praktisi IT, atau siapa aja yang mau belajar jaringan dari nol.',
+      'Materi disusun berdasarkan kurikulum industri, dengan contoh kasus nyata yang sering dijumpai di dunia kerja.'
     ],
     highlights: [
-      'Papan Kanban dengan drag & drop yang halus',
-      'Sub-tugas, label warna, dan tenggat fleksibel',
-      'Mode Fokus dengan Pomodoro otomatis',
-      'Ekspor data ke JSON/CSV, bekerja offline'
+      'Materi jaringan komputer terstruktur',
+      'Pre-test & post-test untuk evaluasi',
+      'Contoh kasus nyata dari industri',
+      'Cocok untuk pemula hingga mahir'
     ],
     screenshots: [
-      { title: 'Papan Kanban', caption: 'Susun pekerjaan dalam kolom yang dapat disesuaikan.' },
-      { title: 'Detail Tugas', caption: 'Sub-tugas, lampiran, dan pengingat dalam satu tempat.' },
-      { title: 'Mode Fokus', caption: 'Timer Pomodoro otomatis dari tugas aktif.' },
-      { title: 'Laporan', caption: 'Ringkasan progres mingguan timmu.' }
+      { title: 'Beranda', caption: 'Ringkasan progres belajar dan daftar bab materi.', src: 'img/asset/screenshoot/net-skill/net-skill-1.jpg' },
+      { title: 'Materi', caption: 'Empat bab jaringan: perangkat, topologi, sampai kabel & nirkabel.', src: 'img/asset/screenshoot/net-skill/net-skill-2.jpg' },
+      { title: 'Progress', caption: 'Persentase penyelesaian tiap bab dalam satu halaman.', src: 'img/asset/screenshoot/net-skill/net-skill-3.jpg' },
+      { title: 'Pre-Test', caption: 'Kerjakan pre-test sebelum masuk ke materi bab.', src: 'img/asset/screenshoot/net-skill/net-skill-4.jpg' }
     ],
     changelog: [
-      {
-        version: '5.0.3',
-        date: '14 September 2026',
-        type: 'Perbaikan',
-        notes: [
-          'Memperbaiki kartu yang kembali ke posisi awal setelah drag di layar sentuh.',
-          'Performa impor file besar meningkat 30%.'
-        ]
-      },
-      {
-        version: '5.0.0',
-        date: '2 September 2026',
-        type: 'Fitur baru',
-        notes: [
-          'Desain ulang antarmuka mode terang dan gelap.',
-          'Kolom kustom tanpa batas jumlah.',
-          'Integrasi kalender dua arah.'
-        ]
-      },
-      {
-        version: '4.8.1',
-        date: '19 Agustus 2026',
-        type: 'Perbaikan',
-        notes: ['Pengingat tidak lagi terlewat saat perangkat dalam mode hemat daya.']
-      }
+      { version: '1.0.0', date: '4 Oktober 2026', type: 'Rilis pertama', notes: ['Rilis perdana NetSkill.', 'Fitur: materi, pre-test, post-test.'] }
     ],
     developerInfo: {
-      studio: 'BrightLabs',
-      founder: 'Nadia Kusuma',
-      founded: '2020',
-      location: 'Yogyakarta, Indonesia',
-      website: 'brightlabs.example.com',
-      email: 'support@brightlabs.example.com',
-      team: '9 orang',
-      appsPublished: 4,
-      responseTime: 'Rata-rata 6 jam kerja'
+      studio: 'Alwi & Bunga',
+      founder: 'Alwi, Bunga',
+      founded: '2026',
+      location: 'Surabaya, Indonesia',
+      website: '-',
+      email: '-',
+      team: '2 orang',
+      appsPublished: 1,
+      responseTime: '-'
     },
     technical: {
-      version: '5.0.3',
-      size: '42 MB',
-      updated: '14 September 2026',
-      requires: 'Android 9.0+ / iOS 15+ / Web modern',
-      license: 'Gratis (Pro: langganan opsional)',
-      languages: 'Bahasa Indonesia, English, Deutsch',
+      version: '1.0.0',
+      size: '26 MB',
+      updated: '4 Oktober 2026',
+      requires: 'Android 8.0+',
+      license: 'Gratis',
+      languages: 'Bahasa Indonesia',
       ageRating: '3+ (Semua umur)'
     }
   },
 
   /* ------------------------------------------------------------------ 3 */
   {
-    id: 'metrocalc',
-    name: 'MetroCalc',
-    tagline: 'Kalkulator ilmiah super cepat',
-    category: 'Tools',
-    rating: 4.9,
-    ratingCount: 215980,
-    downloads: '5,1 jt',
-    icon: '🧮',
-    version: '2.4.0',
-    updated: '2026-07-30',
-    size: '18 MB',
+    id: 'craft-cpp',
+    name: 'CraftC++',
+    tagline: 'Belajar C++ sambil ngoding langsung',
+    category: 'Produktivitas',
+    rating: 0,
+    ratingCount: 0,
+    downloads: '0',
+    icon: 'img/asset/icon/craft-cpp.png',
+    version: '1.0.0',
+    updated: '2026-10-04',
+    size: '120 MB',
+    apkUrl: 'https://github.com/Ramaa-linux/nesasto/releases/latest/download/craft-cpp.apk',
     theme: { from: '#f59e0b', to: '#ef4444', accent: '#fbbf24' },
     shortDescription:
-      'Kalkulator ilmiah, konverter satuan, dan penghitung rumus dengan riwayat tak terbatas.',
+      'Aplikasi pembelajaran C++ dengan materi lengkap dan playground code interaktif.',
     fullDescription: [
-      'MetroCalc menggabungkan kalkulator ilmiah, konverter satuan, dan penghitung rumus dalam satu aplikasi yang sangat ringan. Ukurannya hanya 18 MB dan membuka dalam kurang dari satu detik.',
-      'Mendukung notasi ilmiah, basis bilangan (biner, oktal, heksadesimal), matriks sederhana, serta 120+ satuan di 14 kategori mulai dari panjang hingga mata uang.',
-      'Riwayat perhitungan tersimpan tanpa batas dan dapat diberi catatan, sangat berguna untuk pekerjaan teknik maupun belajar.'
+      'CraftC++ adalah aplikasi pembelajaran pemrograman C++ yang menggabungkan materi terstruktur dengan playground code interaktif. Kamu bisa langsung mencoba kode yang dipelajari tanpa perlu install compiler terpisah.',
+      'Materi disusun dari dasar: variabel, tipe data, kontrol alur, fungsi, pointer, hingga OOP. Setiap topik dilengkapi contoh kode yang bisa langsung dijalankan.',
+      'Cocok untuk mahasiswa, pemula yang mau belajar C++, atau siapa aja yang ingin memperdalam skill programming.'
     ],
     highlights: [
-      'Kalkulator ilmiah + 120 unit konversi',
-      'Basis bilangan dan operasi matriks sederhana',
-      'Riwayat perhitungan tak terbatas dengan catatan',
-      'Widget dan pintasan dari layar utama'
+      'Materi C++ dari dasar hingga OOP',
+      'Playground code interaktif',
+      'Contoh kode yang bisa langsung dijalankan',
+      'Cocok untuk pemula & mahasiswa'
     ],
     screenshots: [
-      { title: 'Kalkulator Cepat', caption: 'Tombol besar dan tata letak yang jelas.' },
-      { title: 'Mode Ilmiah', caption: 'Fungsi trigonometri, logaritma, dan basis bilangan.' },
-      { title: 'Konverter', caption: '120+ satuan di 14 kategori berbeda.' },
-      { title: 'Riwayat', caption: 'Simpan dan beri catatan pada setiap perhitungan.' }
+      { title: 'Menu Utama', caption: 'Progres belajar dan akses cepat materi.', src: 'img/asset/screenshoot/craft-cpp/craft-cpp-1.jpg' },
+      { title: 'Materi', caption: '13 bab materi C++ beserta status penyelesaiannya.', src: 'img/asset/screenshoot/craft-cpp/craft-cpp-2.jpg' },
+      { title: 'Coding Space', caption: 'Tulis, jalankan, dan uji kode C++ langsung di aplikasi.', src: 'img/asset/screenshoot/craft-cpp/craft-cpp-3.jpg' },
+      { title: 'Progress Belajar', caption: 'Lihat bab yang selesai, terbuka, dan masih terkunci.', src: 'img/asset/screenshoot/craft-cpp/craft-cpp-4.jpg' },
+      { title: 'Evaluasi', caption: 'Kerjakan soal evaluasi di akhir setiap bab.', src: 'img/asset/screenshoot/craft-cpp/craft-cpp-5.jpg' }
     ],
     changelog: [
-      {
-        version: '2.4.0',
-        date: '30 Juli 2026',
-        type: 'Fitur baru',
-        notes: [
-          'Operasi matriks sederhana (penjumlahan & perkalian).',
-          'Dukungan widget layar utama.',
-          'Peningkatan akurasi konversi mata uang.'
-        ]
-      },
-      {
-        version: '2.3.2',
-        date: '12 Juli 2026',
-        type: 'Perbaikan',
-        notes: ['Memperbaiki tanda minus ganda pada mode heksadesimal.']
-      },
-      {
-        version: '2.3.0',
-        date: '28 Juni 2026',
-        type: 'Fitur baru',
-        notes: ['Tema gelap murni (OLED) untuk menghemat baterai.']
-      }
+      { version: '1.0.0', date: '4 Oktober 2026', type: 'Rilis pertama', notes: ['Rilis perdana CraftC++.', 'Fitur: materi, playground code.'] }
     ],
     developerInfo: {
-      studio: 'NordTools',
-      founder: 'Anders Lindqvist',
-      founded: '2017',
-      location: 'Malmö, Swedia',
-      website: 'nordtools.example.com',
-      email: 'hello@nordtools.example.com',
-      team: '5 orang',
-      appsPublished: 12,
-      responseTime: 'Rata-rata 2 hari kerja'
+      studio: 'Dziqro & Iqbal',
+      founder: 'Dziqro, Iqbal',
+      founded: '2026',
+      location: 'Surabaya, Indonesia',
+      website: '-',
+      email: '-',
+      team: '2 orang',
+      appsPublished: 1,
+      responseTime: '-'
     },
     technical: {
-      version: '2.4.0',
-      size: '18 MB',
-      updated: '30 Juli 2026',
-      requires: 'Android 7.0+ / iOS 13+',
-      license: 'Gratis, tanpa iklan',
-      languages: 'English, Bahasa Indonesia, Svenska',
+      version: '1.0.0',
+      size: '120 MB',
+      updated: '4 Oktober 2026',
+      requires: 'Android 8.0+',
+      license: 'Gratis',
+      languages: 'Bahasa Indonesia',
       ageRating: '3+ (Semua umur)'
     }
   },
 
   /* ------------------------------------------------------------------ 4 */
   {
-    id: 'pixelcraft-editor',
-    name: 'PixelCraft Editor',
-    tagline: 'Edit foto & desain dalam sekali sentuh',
-    category: 'Desain',
-    rating: 4.6,
-    ratingCount: 87350,
-    downloads: '1,7 jt',
-    icon: '🎨',
-    version: '1.9.2',
-    updated: '2026-09-05',
-    size: '124 MB',
-    theme: { from: '#ec4899', to: '#8b5cf6', accent: '#f472b6' },
-    shortDescription:
-      'Editor foto berbasis layer dengan filter sinematik, penghapus objek, dan template siap pakai.',
-    fullDescription: [
-      'PixelCraft Editor adalah editor foto dan desain ringan yang mendukung sistem layer, masker, dan penyesuaian non-destruktif. Cocok untuk membuat konten media sosial maupun desain poster sederhana.',
-      'Tersedia lebih dari 60 filter sinematik, alat penghapus objek berbasis AI on-device, dan 200+ template yang bisa langsung dikustomisasi tanpa perlu akun.',
-      'Semua pemrosesan dilakukan di perangkat, sehingga fotomu tidak pernah dikirim ke server mana pun.'
-    ],
-    highlights: [
-      'Sistem layer, masker, dan penyesuaian non-destruktif',
-      '60+ filter sinematik dan 200+ template',
-      'Penghapus objek on-device tanpa upload',
-      'Ekspor PNG, JPG, dan WebP hingga 4K'
-    ],
-    screenshots: [
-      { title: 'Kanvas Utama', caption: 'Susun layer dan atur komposisi dengan bebas.' },
-      { title: 'Filter', caption: '60+ preset warna satu ketukan.' },
-      { title: 'Penghapus Objek', caption: 'Hapus objek pengganggu secara otomatis.' },
-      { title: 'Template', caption: 'Ratusan template siap pakai untuk media sosial.' }
-    ],
-    changelog: [
-      {
-        version: '1.9.2',
-        date: '5 September 2026',
-        type: 'Perbaikan',
-        notes: [
-          'Memperbaiki bayangan yang hilang saat mengekspor PNG transparan.',
-          'Mengurangi penggunaan baterai saat mengedit file 4K.'
-        ]
-      },
-      {
-        version: '1.9.0',
-        date: '20 Agustus 2026',
-        type: 'Fitur baru',
-        notes: ['Alat penghapus objek generasi kedua.', 'Mode kolaborasi lokal via Wi-Fi.']
-      },
-      {
-        version: '1.8.0',
-        date: '2 Agustus 2026',
-        type: 'Fitur baru',
-        notes: ['Ekspor format WebP.', '50 template baru bertema Ramadan.']
-      }
-    ],
-    developerInfo: {
-      studio: 'Vora Creative',
-      founder: 'Kevin Hartono',
-      founded: '2021',
-      location: 'Jakarta, Indonesia',
-      website: 'voracreative.example.com',
-      email: 'studio@voracreative.example.com',
-      team: '21 orang',
-      appsPublished: 3,
-      responseTime: 'Rata-rata 3 hari kerja'
-    },
-    technical: {
-      version: '1.9.2',
-      size: '124 MB',
-      updated: '5 September 2026',
-      requires: 'Android 10+ / iOS 16+',
-      license: 'Freemium',
-      languages: 'Bahasa Indonesia, English, 中文',
-      ageRating: '3+ (Semua umur)'
-    }
-  },
-
-  /* ------------------------------------------------------------------ 5 */
-  {
-    id: 'focusloft',
-    name: 'FocusLoft',
-    tagline: 'Ruang tenang untuk fokus mendalam',
+    id: 'netropia',
+    name: 'netropia',
+    tagline: 'Belajar Teknik Komputer & Jaringan dengan AI',
     category: 'Produktivitas',
-    rating: 4.5,
-    ratingCount: 41020,
-    downloads: '620 rb',
-    icon: '🌙',
-    version: '1.4.1',
-    updated: '2026-06-18',
-    size: '36 MB',
-    theme: { from: '#334155', to: '#6366f1', accent: '#94a3b8' },
-    shortDescription:
-      'Timer fokus minimalis dengan suara latar, pelacak sesi, dan laporan kebiasaan.',
-    fullDescription: [
-      'FocusLoft adalah aplikasi timer fokus minimalis yang dirancang agar kamu bisa langsung mulai bekerja tanpa banyak gangguan. Antarmukanya hanya berisi satu tombol besar dan penghitung waktu.',
-      'Pilih dari 24 suara latar seperti hujan, kafe, atau gemericik air, lalu kombinasikan dengan teknik Pomodoro 25/5, 50/10, atau durasi bebas sesuai kebutuhanmu.',
-      'Setiap sesi dicatat dan divisualisasikan sebagai laporan harian maupun mingguan, membantumu memahami pola produktivitas terbaik.'
-    ],
-    highlights: [
-      '24 suara latar berkualitas tinggi',
-      'Preset Pomodoro 25/5, 50/10, dan durasi bebas',
-      'Laporan kebiasaan harian & mingguan',
-      'Widget dan mode jangan ganggu otomatis'
-    ],
-    screenshots: [
-      { title: 'Timer Fokus', caption: 'Satu tombol besar, tanpa distraksi.' },
-      { title: 'Suara Latar', caption: '24 suara ambient yang bisa dikombinasikan.' },
-      { title: 'Pelacak Sesi', caption: 'Lihat total jam fokus yang kamu raih.' },
-      { title: 'Laporan', caption: 'Grafik kebiasaan fokus sepanjang minggu.' }
-    ],
-    changelog: [
-      {
-        version: '1.4.1',
-        date: '18 Juni 2026',
-        type: 'Perbaikan',
-        notes: [
-          'Memperbaiki timer yang berhenti saat layar terkunci di beberapa perangkat.',
-          'Sinkronisasi data lintas perangkat lebih stabil.'
-        ]
-      },
-      {
-        version: '1.4.0',
-        date: '1 Juni 2026',
-        type: 'Fitur baru',
-        notes: ['6 suara latar baru bertema alam.', 'Preset durasi bebas.']
-      },
-      {
-        version: '1.3.0',
-        date: '12 Mei 2026',
-        type: 'Fitur baru',
-        notes: ['Laporan mingguan dengan grafik batang.']
-      }
-    ],
-    developerInfo: {
-      studio: 'QuietByte',
-      founder: 'Maya Larasati',
-      founded: '2022',
-      location: 'Semarang, Indonesia',
-      website: 'quietbyte.example.com',
-      email: 'hi@quietbyte.example.com',
-      team: '4 orang',
-      appsPublished: 2,
-      responseTime: 'Rata-rata 12 jam kerja'
-    },
-    technical: {
-      version: '1.4.1',
-      size: '36 MB',
-      updated: '18 Juni 2026',
-      requires: 'Android 8.1+ / iOS 15+',
-      license: 'Gratis (versi Pro sekali bayar)',
-      languages: 'Bahasa Indonesia, English',
-      ageRating: '3+ (Semua umur)'
-    }
-  },
-
-  /* ------------------------------------------------------------------ 6 */
-  {
-    id: 'retrodash',
-    name: 'RetroDash',
-    tagline: 'Nostalgia arkade 8-bit di kantongmu',
-    category: 'Game',
-    rating: 4.4,
-    ratingCount: 33260,
-    downloads: '450 rb',
-    icon: '👾',
-    version: '1.2.5',
-    updated: '2026-05-22',
-    size: '64 MB',
+    rating: 0,
+    ratingCount: 0,
+    downloads: '0',
+    icon: 'img/asset/icon/netropia.png',
+    version: '1.0.0',
+    updated: '2026-10-04',
+    size: '70 MB',
+    apkUrl: 'https://github.com/Ramaa-linux/nesasto/releases/latest/download/netropia.apk',
     theme: { from: '#22c55e', to: '#0891b2', accent: '#fde047' },
     shortDescription:
-      'Kumpulan lima mini-game arkade 8-bit dengan kontrol sederhana dan skor tinggi.',
+      'Platform pembelajaran Teknik Komputer & Jaringan dengan materi, modul, simulasi jaringan, dan asisten AI.',
     fullDescription: [
-      'RetroDash menghadirkan kembali sensasi bermain di mesin arkade dengan lima mini-game bergaya 8-bit: Blok Buster, Ular Neon, Runner Piksel, Tembak Bintang, dan Labirin.',
-      'Setiap mini-game dapat dimainkan dalam sesi singkat dua menit, cocok untuk mengisi waktu luang. Skor tinggi tersimpan secara lokal dengan dukungan hingga sepuluh pemain berbeda.',
-      'Grafik dan efek suara dibuat menyerupai konsol era 80-an, lengkap dengan mode CRT opsional yang bisa dinyalakan atau dimatikan.'
+      'netropia adalah platform pembelajaran Teknik Komputer & Jaringan yang lengkap. Tersedia materi terstruktur, modul pembelajaran, simulasi jaringan interaktif, dan asisten AI yang siap menjawab pertanyaan kamu 24/7.',
+      'Simulasi jaringan memungkinkan kamu berlatih konfigurasi perangkat tanpa perlu hardware fisik. Asisten AI membantu menjelaskan konsep yang sulit dengan bahasa yang mudah dipahami.',
+      'Cocok untuk siswa Teknik Komputer & Jaringan, praktisi IT, atau siapa aja yang ingin memperdalam skill networking.'
     ],
     highlights: [
-      'Lima mini-game arkade klasik dalam satu aplikasi',
-      'Sesi singkat dua menit per permainan',
-      'Skor tinggi lokal hingga 10 pemain',
-      'Mode tampilan CRT yang bisa diaktifkan'
+      'Materi & modul Teknik Komputer & Jaringan',
+      'Simulasi jaringan interaktif',
+      'Asisten AI tanya-jawab 24/7',
+      'Cocok untuk mahasiswa & praktisi IT'
     ],
     screenshots: [
-      { title: 'Menu Arcade', caption: 'Pilih dari lima mini-game klasik.' },
-      { title: 'Ular Neon', caption: 'Kumpulkan makanan tanpa menabrak dirimu sendiri.' },
-      { title: 'Tembak Bintang', caption: 'Kendalikan kapal piksel melawan armada alien.' },
-      { title: 'Skor Tinggi', caption: 'Simpan rekor hingga sepuluh pemain berbeda.' }
+      { title: 'Beranda', caption: 'Akses cepat materi TKJ, perangkat 3D, dan kalkulator subnet.', src: 'img/asset/screenshoot/netropia/netropia-1.jpg' },
+      { title: 'Progress Belajar', caption: 'Pantau capaian tiap modul dalam satu halaman.', src: 'img/asset/screenshoot/netropia/netropia-2.jpg' },
+      { title: 'Simulasi Jaringan', caption: 'Susun topologi dengan PC, switch, router, dan AP.', src: 'img/asset/screenshoot/netropia/netropia-3.jpg' },
+      { title: 'Perangkat Jaringan', caption: 'Materi, video, latihan, hingga refleksi dalam satu menu.', src: 'img/asset/screenshoot/netropia/netropia-4.jpg' }
     ],
     changelog: [
-      {
-        version: '1.2.5',
-        date: '22 Mei 2026',
-        type: 'Perbaikan',
-        notes: [
-          'Memperbaiki input yang tertunda pada layar 120 Hz.',
-          'Menambahkan tombol jeda di semua mini-game.'
-        ]
-      },
-      {
-        version: '1.2.0',
-        date: '30 April 2026',
-        type: 'Fitur baru',
-        notes: ['Mini-game baru: Labirin.', 'Mode tampilan CRT.']
-      },
-      {
-        version: '1.0.0',
-        date: '10 Maret 2026',
-        type: 'Rilis pertama',
-        notes: ['Rilis perdana dengan empat mini-game dan skor lokal.']
-      }
+      { version: '1.0.0', date: '4 Oktober 2026', type: 'Rilis pertama', notes: ['Rilis perdana netropia.', 'Fitur: materi, modul, simulasi, asisten AI.'] }
     ],
     developerInfo: {
-      studio: 'ByteBounce',
-      founder: 'Dimas Ardhana',
-      founded: '2023',
+      studio: 'Aziz & Zuhrifal',
+      founder: 'Aziz, Zuhrifal',
+      founded: '2026',
       location: 'Surabaya, Indonesia',
-      website: 'bytebounce.example.com',
-      email: 'play@bytebounce.example.com',
-      team: '3 orang',
-      appsPublished: 2,
-      responseTime: 'Rata-rata 2 hari kerja'
+      website: '-',
+      email: '-',
+      team: '2 orang',
+      appsPublished: 1,
+      responseTime: '-'
     },
     technical: {
-      version: '1.2.5',
-      size: '64 MB',
-      updated: '22 Mei 2026',
-      requires: 'Android 8.0+ / iOS 14+',
-      license: 'Gratis, tanpa iklan',
-      languages: 'Bahasa Indonesia, English',
-      ageRating: '7+ (Fantasi ringan)'
+      version: '1.0.0',
+      size: '70 MB',
+      updated: '4 Oktober 2026',
+      requires: 'Android 8.0+',
+      license: 'Gratis',
+      languages: 'Bahasa Indonesia',
+      ageRating: '3+ (Semua umur)'
     }
   }
 ];

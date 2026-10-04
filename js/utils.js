@@ -1,7 +1,8 @@
 /* ==========================================================================
    NesaStore - utils.js
    Fungsi bantu: escaping, format angka, bintang rating, gaya kategori,
-   generator gambar placeholder (SVG), toast, dan penyimpanan lokal.
+   tile ikon (berkas gambar atau emoji), sumber gambar screenshot (berkas
+   asli + cadangan placeholder SVG), toast, dan ketersediaan berkas APK.
    ========================================================================== */
 
 /* ---------------------------------------------------------------- Escaping */
@@ -105,7 +106,39 @@ function categoryBadge(category, extra) {
 }
 
 /* ---------------------------------------------------------------- Ikon tile */
+/** Nilai `icon` dianggap berkas gambar bila berakhiran ekstensi gambar. */
+function isImageIcon(icon) {
+  return typeof icon === 'string' && /\.(png|jpe?g|webp|gif|svg)$/i.test(icon.trim());
+}
+
+/**
+ * Tile ikon aplikasi.
+ *   - icon = path gambar ('img/asset/icon/....png') -> berkas gambar memenuhi
+ *     tile; huruf inisial nama aplikasi dipasang di belakangnya sebagai
+ *     cadangan bila berkasnya gagal dimuat (onerror -> gambar dilepas).
+ *   - icon = emoji -> dirender sebagai teks seperti sebelumnya.
+ */
 function iconTile(app, sizeClasses, fontSizeClasses, radiusClass, extraClass) {
+  var pakaiGambar = isImageIcon(app.icon);
+  var inisial = String(app.name || '?').trim().charAt(0).toUpperCase();
+
+  var isi = pakaiGambar
+    ? '<span class="app-tile-initial ' +
+      (fontSizeClasses || '') +
+      ' leading-none">' +
+      escapeHtml(inisial) +
+      '</span>' +
+      '<img class="app-tile-img" src="' +
+      escapeHtml(app.icon.trim()) +
+      '" alt="Ikon ' +
+      escapeHtml(app.name) +
+      '" loading="lazy" onerror="this.remove()">'
+    : '<span class="' +
+      fontSizeClasses +
+      ' leading-none drop-shadow-sm">' +
+      app.icon +
+      '</span>';
+
   return (
     /* .app-tile: di mode gelap gradient + glow tile diganti permukaan abu solid
        (lihat css/custom.css). Gradient tetap dipertahankan untuk mode terang. */
@@ -122,11 +155,7 @@ function iconTile(app, sizeClasses, fontSizeClasses, radiusClass, extraClass) {
     ');box-shadow:0 14px 34px -14px ' +
     app.theme.from +
     'cc">' +
-    '<span class="' +
-    fontSizeClasses +
-    ' leading-none drop-shadow-sm">' +
-    app.icon +
-    '</span>' +
+    isi +
     '</span>'
   );
 }
@@ -216,6 +245,19 @@ function placeholderSVG(app, index) {
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 
+/* ------------------------------------------------- Sumber gambar screenshot
+   Galeri memakai berkas gambar asli dari properti screenshot.src. Bila src
+   kosong (mis. berkasnya belum tersedia), placeholderSVG() dipakai sebagai
+   cadangan supaya galeri tidak pernah tampil kosong.
+   ------------------------------------------------------------------------- */
+function screenshotSrc(app, index) {
+  var shot = app.screenshots[index];
+  if (shot && typeof shot.src === 'string' && shot.src.trim() !== '') {
+    return shot.src.trim();
+  }
+  return placeholderSVG(app, index);
+}
+
 /* ------------------------------------------------------------------- Toast */
 var TOAST_ICONS = {
   sukses:
@@ -270,48 +312,40 @@ function toast(message, type, duration) {
   setTimeout(dismiss, duration || 3200);
 }
 
-/* -------------------------------------------------------- Status pemasangan */
-var STORAGE_KEY = 'nesastore.installed.v1';
-var memoryStore = {};
+/* ------------------------------------------------------ Ketersediaan APK
+   NesaStore hanya mendistribusikan berkas .apk; tidak ada proses pemasangan
+   di dalam peramban. Fungsi di bawah dipakai untuk memutuskan apakah sebuah
+   aplikasi sudah punya tautan unduhan atau masih "Segera Hadir".
+   ------------------------------------------------------------------------- */
 
-function safeParse(raw) {
-  try {
-    return raw ? JSON.parse(raw) : {};
-  } catch (e) {
-    return {};
-  }
+function hasApk(app) {
+  return !!(app && typeof app.apkUrl === 'string' && app.apkUrl.trim() !== '');
 }
 
-function getInstalledMap() {
-  var raw = null;
-  try {
-    raw = window.localStorage.getItem(STORAGE_KEY);
-  } catch (e) {
-    raw = null;
-  }
-  var map = safeParse(raw);
-  Object.keys(memoryStore).forEach(function (k) {
-    map[k] = memoryStore[k];
-  });
-  return map;
-}
+var APK_ICON_DOWNLOAD =
+  '<svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"></path></svg>';
+var APK_ICON_SOON =
+  '<svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5V12l3.2 2"></path></svg>';
 
-function isInstalled(id) {
-  return !!getInstalledMap()[id];
-}
-
-function setInstalled(id, value) {
-  var map = getInstalledMap();
-  if (value) {
-    map[id] = Date.now();
-    memoryStore[id] = Date.now();
-  } else {
-    delete map[id];
-    delete memoryStore[id];
-  }
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
-  } catch (e) {
-    /* localStorage tidak tersedia (mis. mode privat) -> pakai memoryStore */
-  }
+/**
+ * Lencana status berkas APK.
+ *   - apkUrl ada  -> "APK Tersedia" (aksen hijau)
+ *   - apkUrl kosong -> "Segera Hadir" (netral)
+ * Kelas .tag-neutral membuat lencana ini abu-abu netral di mode gelap
+ * (lihat blok "MODE GELAP MINIMALIS" pada css/custom.css).
+ */
+function apkStatusBadge(app, extra) {
+  var siap = hasApk(app);
+  return (
+    '<span class="tag-neutral inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-bold uppercase tracking-wide ' +
+    (siap
+      ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+      : 'border-slate-500/25 bg-slate-500/15 text-slate-300') +
+    ' ' +
+    (extra || '') +
+    '">' +
+    (siap ? APK_ICON_DOWNLOAD : APK_ICON_SOON) +
+    (siap ? 'APK Tersedia' : 'Segera Hadir') +
+    '</span>'
+  );
 }
