@@ -132,17 +132,22 @@
 
   <!-- ===================== HEADER ===================== -->
   <header class="sticky top-0 z-40 border-b border-white/5 bg-ink-950/70 backdrop-blur-xl">
-    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3.5 sm:px-6 lg:px-8">
-      <a href="#/" id="brand-link" class="group flex min-w-0 items-center gap-2 sm:gap-3">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 sm:gap-4 sm:px-6 sm:py-3 lg:px-8">
+      <!-- Logo saja: wordmark "NesaStore" + tagline sudah menyatu di dalam gambar,
+           jadi teks di sebelahnya dihapus supaya tidak berulang (dan menghemat ruang). -->
+      <a
+        href="#/"
+        id="brand-link"
+        class="group flex min-w-0 shrink-0 items-center"
+        aria-label="NesaStore &mdash; kembali ke katalog"
+      >
         <img
           src="img/logo.png"
           alt="NesaStore"
-          class="h-9 w-auto max-w-[8.5rem] shrink-0 rounded-lg object-contain transition group-hover:scale-105 sm:h-10 sm:max-w-[9.5rem]"
+          width="2340"
+          height="764"
+          class="h-8 w-auto max-w-[8rem] shrink-0 rounded-lg object-contain transition group-hover:scale-105 sm:h-10 sm:max-w-[11rem] lg:h-12 lg:max-w-[13rem]"
         />
-        <span class="min-w-0 leading-tight">
-          <span class="block truncate text-base font-extrabold tracking-tight text-white">NesaStore</span>
-          <span class="block truncate text-[11px] font-medium text-slate-400">App-Store nya warga NESA</span>
-        </span>
       </a>
 
       <div class="flex items-center gap-2 sm:gap-3">
@@ -172,6 +177,18 @@
         </button>
       </div>
     </div>
+
+    <!-- Navigasi mobile: baris kedua khusus layar < md supaya "Katalog" & "Tentang"
+         tetap bisa dijangkau tanpa berebut ruang dengan logo + pemilih tema. -->
+    <nav class="border-t border-white/5 md:hidden" aria-label="Navigasi utama">
+      <div class="mx-auto flex max-w-7xl items-center gap-1 px-4 py-1 text-sm font-medium sm:px-6">
+        <a href="#/" class="nav-link flex-1 rounded-lg px-3 py-2 text-center text-slate-300 transition hover:bg-white/5 hover:text-white">Katalog</a>
+        <a href="#/tentang" class="nav-link flex-1 rounded-lg px-3 py-2 text-center text-slate-300 transition hover:bg-white/5 hover:text-white">Tentang</a>
+        <span class="ml-1 inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Demo lokal
+        </span>
+      </div>
+    </nav>
   </header>
 
   <!-- ===================== MAIN ===================== -->

@@ -8,7 +8,8 @@ Cukup buka `index.html` di peramban — semuanya berjalan lewat protokol `file:/
 
 ```
 index.html        Shell HTML (header/nav, hero, katalog, detail, tentang, footer)
-img/logo.png      Logo NesaStore (2400×800) — dipakai di header & favicon
+img/logo.png      Logo NesaStore (2340×764) — dipakai di header (logo saja, wordmark
+                  "NesaStore" + tagline sudah menyatu di dalam gambar) & favicon
 css/custom.css    Token warna, animasi, gaya tab/chip/kartu, segmented tema,
                   override mode terang, aksesibilitas
 js/data.js        6 aplikasi dummy, CATEGORIES, APP_BY_ID
@@ -34,6 +35,14 @@ _selftest.html    Alat uji mandiri (dev tool) — lihat bagian di bawah
   pertama sehingga tidak ada kedipan, dan mode *Sistem* otomatis mengikuti perubahan
   `prefers-color-scheme` perangkat. Di layar kecil kontrolnya menjadi ringkas (ikon saja).
 - **Router berbasis hash** dengan penanda nav aktif dan judul dokumen yang berubah.
+  Penanda aktif berlaku untuk kedua baris nav (desktop & mobile).
+- **Header responsif**: menampilkan **logo saja** — wordmark "NesaStore" + tagline sudah
+  menyatu di dalam gambar, jadi teks di sebelahnya dihapus supaya tidak berulang. Logo
+  berskala tinggi `32px → 40px → 48px` (`base` → `sm` → `lg`) dengan `max-width` sebagai
+  pengaman rasio. Di layar ≥ `md` nav `Katalog`/`Tentang` + badge `Demo lokal` berada di
+  baris yang sama; di bawah `md` nav dipindah ke **baris kedua** yang ringkas supaya tetap
+  terjangkau pada lebar 360 px. Pemilih tema tetap di kanan (di bawah 640 px menjadi
+  ringkas: ikon saja) bersama tombol cari.
 
 ## Cara memakai
 
