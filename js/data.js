@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PixelStore - data.js
+   NesaStore - data.js
    Data dummy katalog aplikasi. Semua konten bersifat fiktif.
    Struktur satu objek aplikasi:
    {

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PixelStore - utils.js
+   NesaStore - utils.js
    Fungsi bantu: escaping, format angka, bintang rating, gaya kategori,
    generator gambar placeholder (SVG), toast, dan penyimpanan lokal.
    ========================================================================== */
@@ -63,7 +63,7 @@ function starRatingHTML(rating) {
     '<span class="flex gap-0.5 text-slate-600/80">' +
     starRow('') +
     '</span>' +
-    '<span class="absolute inset-0 flex gap-0.5 text-amber-400" style="clip-path:' +
+    '<span class="absolute inset-0 flex gap-0.5 text-accent-400" style="clip-path:' +
     clip +
     ';-webkit-clip-path:' +
     clip +
@@ -266,7 +266,7 @@ function toast(message, type, duration) {
 }
 
 /* -------------------------------------------------------- Status pemasangan */
-var STORAGE_KEY = 'pixelstore.installed.v1';
+var STORAGE_KEY = 'nesastore.installed.v1';
 var memoryStore = {};
 
 function safeParse(raw) {

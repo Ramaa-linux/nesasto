@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PixelStore - app.js
+   NesaStore - app.js
    Logika utama: router berbasis hash (tanpa reload), katalog, pencarian,
    filter kategori, halaman detail, tab, galeri, dan tombol instal.
    ========================================================================== */
@@ -88,7 +88,7 @@
   function installedPill(app) {
     if (!isInstalled(app.id)) return '';
     return (
-      '<span class="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-300">' +
+      '<span class="inline-flex shrink-0 items-center gap-1 rounded-full border border-accent-400/40 bg-accent-400/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-accent-300">' +
       '<svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>' +
       'Terinstal' +
       '</span>'
@@ -146,7 +146,7 @@
       escapeHtml(app.downloads) +
       ' unduhan</span>' +
       '</div>' +
-      '<span class="btn-install inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-r from-brand-500 to-fuchsia-500 px-3.5 py-2 text-xs font-bold text-white shadow-lg shadow-brand-600/25 transition group-hover:shadow-brand-600/40">' +
+      '<span class="btn-install inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 py-2 text-xs font-bold text-white shadow-lg shadow-brand-500/25 transition group-hover:bg-brand-600">' +
       'Lihat Detail' +
       '<svg class="h-3.5 w-3.5 transition group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>' +
       '</span>' +
@@ -209,12 +209,12 @@
 
   function installButtonClasses(view) {
     if (view === 'installed') {
-      return 'border border-emerald-500/40 bg-emerald-500/15 text-emerald-300 cursor-default';
+      return 'bg-brand-500 text-white opacity-90 cursor-default';
     }
     if (view === 'installing') {
-      return 'border border-white/10 bg-white/10 text-slate-300 cursor-wait';
+      return 'bg-brand-500/80 text-white cursor-wait';
     }
-    return 'bg-gradient-to-r from-brand-500 to-fuchsia-500 text-white shadow-lg shadow-brand-600/30 hover:shadow-brand-600/50 active:scale-[0.98]';
+    return 'bg-brand-500 text-white shadow-lg shadow-brand-500/30 hover:bg-brand-600 active:scale-[0.98]';
   }
 
   function installAreaHTML(app) {
@@ -235,7 +235,7 @@
 
     var uninstall =
       view === 'installed'
-        ? '<button id="uninstall-btn" type="button" class="mx-auto mt-3 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-400 transition hover:bg-rose-500/10 hover:text-rose-300">' +
+        ? '<button id="uninstall-btn" type="button" class="mx-auto mt-3 flex w-fit items-center gap-1.5 rounded-lg border border-brand-500/50 px-3 py-1.5 text-xs font-semibold text-brand-500 transition hover:bg-brand-500/10 dark:text-brand-400">' +
           ICON_TRASH +
           'Hapus instalasi</button>'
         : '';
@@ -504,7 +504,7 @@
   function technicalPanelHTML(app) {
     var t = app.technical;
     var spesifikasi =
-      specRow('Nama paket', 'com.pixelstore.' + app.id.replace(/-/g, '')) +
+      specRow('Nama paket', 'com.nesastore.' + app.id.replace(/-/g, '')) +
       specRow('Versi saat ini', t.version) +
       specRow('Ukuran berkas', t.size) +
       specRow('Terakhir diperbarui', t.updated) +
@@ -857,8 +857,8 @@
       'Kembali ke Katalog</a>' +
 
       '<div class="mt-4 rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-10">' +
-      '<h1 class="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Tentang PixelStore</h1>' +
-      '<p class="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300 sm:text-[15px]">PixelStore adalah contoh katalog aplikasi (App Store mini) yang dibuat sebagai demo antarmuka. Seluruh aplikasi, kreator, rating, dan changelog di dalamnya bersifat fiktif dan hanya untuk keperluan peragaan.</p>' +
+      '<h1 class="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Tentang NesaStore</h1>' +
+      '<p class="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300 sm:text-[15px]">NesaStore (\u201cApp-Store nya warga NESA\u201d) adalah contoh katalog aplikasi (App Store mini) yang dibuat sebagai demo antarmuka. Seluruh aplikasi, kreator, rating, dan changelog di dalamnya bersifat fiktif dan hanya untuk keperluan peragaan.</p>' +
       '<div class="mt-6 flex flex-wrap gap-2">' + kategori + '</div>' +
       '</div>' +
 
@@ -908,6 +908,101 @@
     );
   }
 
+  /* ============================================================ TEMA (3-mode) */
+
+  var THEME_KEY = 'nesastore-theme';
+  var THEME_VALUES = ['light', 'dark', 'system'];
+
+  function getStoredTheme() {
+    try {
+      var v = window.localStorage.getItem(THEME_KEY);
+      return THEME_VALUES.indexOf(v) !== -1 ? v : 'system';
+    } catch (e) {
+      return 'system';
+    }
+  }
+
+  function storeTheme(theme) {
+    try {
+      window.localStorage.setItem(THEME_KEY, theme);
+    } catch (e) {
+      /* localStorage tidak tersedia -> tema tetap dipakai untuk sesi ini */
+    }
+  }
+
+  function systemPrefersDark() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+
+  function themeIsDark(theme) {
+    if (theme === 'dark') return true;
+    if (theme === 'light') return false;
+    return systemPrefersDark();
+  }
+
+  function applyTheme(theme) {
+    var root = document.documentElement;
+    root.classList.toggle('dark', themeIsDark(theme));
+    root.setAttribute('data-theme', theme);
+  }
+
+  function markActiveTheme(theme) {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-theme-value]'), function (btn) {
+      var on = btn.getAttribute('data-theme-value') === theme;
+      btn.classList.toggle('is-active', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+
+  function setTheme(theme, opts) {
+    if (THEME_VALUES.indexOf(theme) === -1) theme = 'system';
+    storeTheme(theme);
+
+    var root = document.documentElement;
+    var animate = !(opts && opts.silent);
+    if (animate) {
+      root.classList.add('theme-switching');
+      void root.offsetWidth; /* paksa reflow agar transisi 200ms berjalan */
+    }
+
+    applyTheme(theme);
+    markActiveTheme(theme);
+
+    if (animate) {
+      window.setTimeout(function () {
+        root.classList.remove('theme-switching');
+      }, 240);
+    }
+  }
+
+  function initTheme() {
+    var theme = getStoredTheme();
+    applyTheme(theme);
+    markActiveTheme(theme);
+
+    var toggle = byId('theme-toggle');
+    if (toggle) {
+      toggle.addEventListener('click', function (evt) {
+        var btn = evt.target.closest('[data-theme-value]');
+        if (!btn) return;
+        setTheme(btn.getAttribute('data-theme-value'));
+      });
+    }
+
+    /* Saat mode 'system', ikuti perubahan preferensi sistem secara langsung */
+    if (window.matchMedia) {
+      var mq = window.matchMedia('(prefers-color-scheme: dark)');
+      var onSystemChange = function () {
+        if (getStoredTheme() === 'system') applyTheme('system');
+      };
+      if (mq.addEventListener) {
+        mq.addEventListener('change', onSystemChange);
+      } else if (mq.addListener) {
+        mq.addListener(onSystemChange);
+      }
+    }
+  }
+
   /* ================================================================= ROUTER */
 
   function parseRoute() {
@@ -953,15 +1048,15 @@
       }
       showView('detail');
       renderDetail(app);
-      document.title = app.name + ' \u2014 PixelStore';
+      document.title = app.name + ' \u2014 NesaStore';
     } else if (route.view === 'about') {
       showView('about');
       renderAbout();
-      document.title = 'Tentang \u2014 PixelStore';
+      document.title = 'Tentang \u2014 NesaStore';
     } else {
       showView('catalog');
       renderCatalog();
-      document.title = 'PixelStore \u2014 Katalog Aplikasi';
+      document.title = 'NesaStore \u2014 Katalog Aplikasi';
     }
 
     updateNavActive();
@@ -1097,6 +1192,7 @@
     if (els.yearEl) els.yearEl.textContent = String(new Date().getFullYear());
 
     renderCategoryFilters();
+    initTheme();
     bindGlobalEvents();
 
     /* Tanpa hash -> arahkan ke katalog agar tombol kembali peramban rapi */

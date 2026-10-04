@@ -1,18 +1,22 @@
-# PixelStore — Demo Katalog Aplikasi
+# NesaStore — Demo Katalog Aplikasi
 
 Katalog aplikasi (App Store mini) statis tanpa framework dan tanpa build step.
+**NesaStore — "App-Store nya warga NESA".**
 Cukup buka `index.html` di peramban — semuanya berjalan lewat protokol `file://`.
 
 ## Struktur
 
 ```
 index.html        Shell HTML (header/nav, hero, katalog, detail, tentang, footer)
-css/custom.css    Token warna, animasi, gaya tab/chip/kartu, aksesibilitas
+img/logo.png      Logo NesaStore (2400×800) — dipakai di header & favicon
+css/custom.css    Token warna, animasi, gaya tab/chip/kartu, segmented tema,
+                  override mode terang, aksesibilitas
 js/data.js        6 aplikasi dummy, CATEGORIES, APP_BY_ID
 js/utils.js       escapeHtml, format*, starRatingHTML, categoryBadge, iconTile,
                   placeholderSVG, helper status instal (localStorage), toast
 js/app.js         Render katalog, filter/pencarian/urutan, halaman detail + 4 tab,
-                  galeri screenshot, aplikasi serupa, halaman tentang, hash router
+                  galeri screenshot, aplikasi serupa, halaman tentang, hash router,
+                  pengelola tema (Terang / Gelap / Sistem)
 _selftest.html    Alat uji mandiri (dev tool) — lihat bagian di bawah
 ```
 
@@ -25,6 +29,10 @@ _selftest.html    Alat uji mandiri (dev tool) — lihat bagian di bawah
 - **Simulasi instal**: status `Menginstal…` → `Terinstal!` disimpan di `localStorage`
   sehingga tetap tersimpan setelah muat ulang.
 - **Halaman tentang** (`#/tentang`): penjelasan proyek dan panduan pemakaian.
+- **Tema 3-mode** (Terang / Gelap / Sistem) lewat segmented control di header.
+  Pilihan disimpan di `localStorage` (`nesastore-theme`), diterapkan sebelum render
+  pertama sehingga tidak ada kedipan, dan mode *Sistem* otomatis mengikuti perubahan
+  `prefers-color-scheme` perangkat. Di layar kecil kontrolnya menjadi ringkas (ikon saja).
 - **Router berbasis hash** dengan penanda nav aktif dan judul dokumen yang berubah.
 
 ## Cara memakai
@@ -36,12 +44,25 @@ _selftest.html    Alat uji mandiri (dev tool) — lihat bagian di bawah
 | Ubah dropdown urutan | Mengurutkan ulang daftar |
 | Klik kartu / `Lihat Detail` | Masuk ke halaman detail (juga bisa via Enter/Spasi) |
 | Klik `Instal Sekarang` | Menjalankan simulasi instal |
+| Klik `☀️ Light` / `🌙 Dark` / `💻 System` | Mengganti tema tampilan; pilihan bertahan setelah muat ulang |
 | Klik `Tentang` di nav | Membuka `#/tentang` |
 
 ## Catatan teknis
 
 - Tailwind dimuat lewat **CDN Play** (`cdn.tailwindcss.com`). Kelas yang hanya
   dibuat saat runtime didaftarkan di `tailwind.config.safelist` pada `index.html`.
+- Tema memakai `darkMode: 'class'`: mode gelap aktif saat `<html>` memiliki kelas
+  `dark`. Skrip kecil di `<head>` `index.html` membaca `nesastore-theme` dari
+  `localStorage` **sebelum paint pertama** (anti-FOUC), lalu `setTheme()` di
+  `js/app.js` mengganti kelas tersebut sekaligus menyimpan pilihan dan menandai
+  tombol aktif. Saat mode *Sistem*, listener `matchMedia('(prefers-color-scheme: dark)')`
+  ikut memperbarui tampilan. Bila `localStorage` tidak tersedia (mode privat),
+  tema jatuh kembali ke `'system'` dan tetap berjalan untuk sesi itu.
+- Warna utama konsisten di kedua tema: biru `#1A73E8`, aksen kuning `#FCD34D`.
+  Tombol `Instal Sekarang` solid biru, `Hapus instalasi` bergaris (outline) biru.
+  Latar mode terang `#FFFFFF` (teks `#1e293b`), mode gelap `#0b0f1c` (teks `#e2e8f0`).
+  Perpindahan tema dianimasikan 200 ms dan otomatis dinonaktifkan bila pengguna
+  mengaktifkan *prefers-reduced-motion*.
 - Screenshot galeri adalah **SVG data-URI yang dibuat sendiri** (`placeholderSVG`),
   jadi galeri tetap tampil tanpa koneksi internet. `#` di dalam SVG di-*encode*
   menjadi `%23` agar data-URI valid.

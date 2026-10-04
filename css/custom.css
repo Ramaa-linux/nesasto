@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PixelStore - custom.css
+   NesaStore - custom.css
    Pelengkap Tailwind: animasi, scrollbar, grid latar, galeri, toast, dll.
    ========================================================================== */
 
@@ -73,8 +73,8 @@ body {
 }
 .app-card:hover {
   transform: translateY(-6px);
-  border-color: rgba(129, 140, 248, 0.4);
-  box-shadow: 0 24px 48px -22px rgba(99, 102, 241, 0.55);
+  border-color: rgba(26, 115, 232, 0.45);
+  box-shadow: 0 24px 48px -22px rgba(26, 115, 232, 0.5);
 }
 .app-card:hover .app-card-icon {
   transform: scale(1.07) rotate(-3deg);
@@ -116,7 +116,7 @@ body {
   height: 100%;
   width: 0%;
   border-radius: 9999px;
-  background: linear-gradient(90deg, #818cf8, #c084fc);
+  background: linear-gradient(90deg, #1a73e8, #5e97f6);
   transition: width 0.25s ease;
 }
 
@@ -133,7 +133,7 @@ body {
 }
 .shot-thumb.is-active {
   opacity: 1;
-  outline-color: rgba(129, 140, 248, 0.9);
+  outline-color: rgba(26, 115, 232, 0.9);
 }
 #shot-main {
   transition: opacity 0.3s ease;
@@ -146,7 +146,7 @@ body {
 }
 .tab-btn.is-active {
   color: #fff;
-  background-color: rgba(99, 102, 241, 0.16);
+  background-color: rgba(26, 115, 232, 0.18);
 }
 
 /* --- Toast --- */
@@ -197,7 +197,180 @@ body {
 /* --- Utilitas --- */
 .focus-ring:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.28);
+  box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.3);
+}
+
+/* ==========================================================================
+   TEMA 3-MODE (Terang / Gelap / Sistem)
+   ========================================================================== */
+
+/* Transisi halus saat tema berganti (200ms). Dilewati bila pengguna memilih
+   mengurangi animasi. */
+@media (prefers-reduced-motion: no-preference) {
+  html.theme-switching,
+  html.theme-switching *,
+  html.theme-switching *::before,
+  html.theme-switching *::after {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+      fill 0.2s ease, stroke 0.2s ease, box-shadow 0.2s ease !important;
+  }
+}
+
+/* --- Segmented control pemilih tema --- */
+.segmented {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+.seg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.55rem;
+  border: 0;
+  border-radius: 0.55rem;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.seg-btn:hover {
+  color: #e2e8f0;
+}
+.seg-btn:focus-visible {
+  outline: 2px solid #1a73e8;
+  outline-offset: 1px;
+}
+.seg-ico {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+.seg-label {
+  display: none; /* compact di mobile, label muncul di layar >= 640px */
+}
+@media (min-width: 640px) {
+  .seg-label {
+    display: inline;
+  }
+}
+
+/* Tombol terpilih: highlight biru #1A73E8 */
+.seg-btn.is-active,
+.seg-btn.is-active:hover,
+html:not(.dark) .seg-btn.is-active,
+html:not(.dark) .seg-btn.is-active:hover {
+  background: #1a73e8;
+  color: #ffffff !important;
+  box-shadow: 0 6px 14px -6px rgba(26, 115, 232, 0.75);
+}
+html:not(.dark) .segmented {
+  border-color: rgba(2, 6, 23, 0.1);
+  background: rgba(2, 6, 23, 0.03);
+}
+html:not(.dark) .seg-btn {
+  color: #475569;
+}
+html:not(.dark) .seg-btn:hover {
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   MODE TERANG — override utilitas gelap bawaan
+   ========================================================================== */
+
+/* Latar & teks dasar */
+html:not(.dark) body,
+html:not(.dark) [class~="bg-ink-950"] { background-color: #ffffff !important; }
+html:not(.dark) body { color: #1e293b !important; }
+html:not(.dark) [class~="bg-ink-950/70"] { background-color: rgba(255, 255, 255, 0.85) !important; }
+html:not(.dark) [class~="bg-ink-950/60"] { background-color: rgba(255, 255, 255, 0.7) !important; }
+html:not(.dark) [class~="bg-ink-900/80"] { background-color: #ffffff !important; }
+html:not(.dark) [class~="bg-ink-900/60"] { background-color: #f8fafc !important; }
+html:not(.dark) [class~="bg-ink-900/50"] { background-color: #f8fafc !important; }
+html:not(.dark) [class~="bg-ink-900"]    { background-color: #f1f5f9 !important; }
+html:not(.dark) [class~="bg-ink-850/95"] { background-color: rgba(255, 255, 255, 0.98) !important; }
+
+/* Permukaan transparan -> kartu putih */
+html:not(.dark) [class~="bg-white/[0.02]"] { background-color: rgba(15, 23, 42, 0.015) !important; }
+html:not(.dark) [class~="bg-white/[0.03]"],
+html:not(.dark) [class~="bg-white/[0.035]"],
+html:not(.dark) [class~="bg-white/[0.04]"],
+html:not(.dark) [class~="bg-white/[0.06]"] { background-color: #ffffff !important; }
+html:not(.dark) [class~="bg-white/5"]  { background-color: rgba(15, 23, 42, 0.04) !important; }
+html:not(.dark) [class~="bg-white/10"] { background-color: rgba(15, 23, 42, 0.07) !important; }
+html:not(.dark) [class~="bg-slate-500"],
+html:not(.dark) [class~="bg-slate-600"] { background-color: #cbd5e1 !important; }
+
+/* Kartu putih + bayangan lembut */
+html:not(.dark) .app-card,
+html:not(.dark) [class~="bg-white/[0.03]"],
+html:not(.dark) [class~="bg-white/[0.035]"],
+html:not(.dark) [class~="bg-white/[0.04]"] {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 26px -16px rgba(15, 23, 42, 0.22);
+}
+
+/* Garis tepi */
+html:not(.dark) [class~="border-white/5"]  { border-color: rgba(15, 23, 42, 0.06) !important; }
+html:not(.dark) [class~="border-white/10"] { border-color: #e2e8f0 !important; }
+html:not(.dark) [class~="border-white/15"] { border-color: rgba(15, 23, 42, 0.16) !important; }
+html:not(.dark) [class~="hover:border-white/20"]:hover { border-color: rgba(15, 23, 42, 0.22) !important; }
+html:not(.dark) [class~="border-slate-700"] { border-color: #cbd5e1 !important; }
+
+/* Hover lembut */
+html:not(.dark) [class~="hover:bg-white/5"]:hover  { background-color: rgba(15, 23, 42, 0.04) !important; }
+html:not(.dark) [class~="hover:bg-white/10"]:hover { background-color: rgba(15, 23, 42, 0.07) !important; }
+
+/* Teks */
+html:not(.dark) [class~="text-white"]     { color: #0f172a !important; }
+html:not(.dark) [class~="text-slate-200"] { color: #1e293b !important; }
+html:not(.dark) [class~="text-slate-300"] { color: #334155 !important; }
+html:not(.dark) [class~="text-slate-400"] { color: #475569 !important; }
+html:not(.dark) [class~="text-slate-500"] { color: #64748b !important; }
+html:not(.dark) [class~="hover:text-white"]:hover { color: #0f172a !important; }
+html:not(.dark) [class~="text-brand-400"] { color: #1a73e8 !important; }
+html:not(.dark) [class~="text-fuchsia-300"] { color: #a21caf !important; }
+html:not(.dark) [class~="text-sky-300"]     { color: #0369a1 !important; }
+html:not(.dark) [class~="text-amber-300"]   { color: #b45309 !important; }
+html:not(.dark) [class~="text-pink-300"]    { color: #be185d !important; }
+html:not(.dark) [class~="text-emerald-300"] { color: #047857 !important; }
+html:not(.dark) [class~="text-rose-300"]    { color: #be123c !important; }
+html:not(.dark) [class~="text-accent-300"]  { color: #92400e !important; }
+/* Angka rating & bintang kuning: dibikin lebih gelap agar terbaca di atas putih */
+html:not(.dark) [class~="text-amber-400"]   { color: #b45309 !important; }
+html:not(.dark) [class~="text-accent-400"]  { color: #a16207 !important; }
+
+/* Tombol biru solid tetap memakai teks putih */
+html:not(.dark) .btn-install { color: #ffffff !important; }
+
+/* Konten di atas gambar gelap tetap terang */
+html:not(.dark) [class~="from-black/80"] [class~="text-white"],
+html:not(.dark) [class~="from-black/80"] [class~="text-slate-300"] { color: #ffffff !important; }
+html:not(.dark) #shot-prev,
+html:not(.dark) #shot-next { color: #ffffff !important; }
+
+/* Tab aktif tetap terbaca di mode terang */
+html:not(.dark) .tab-btn.is-active {
+  color: #1557b0;
+  background-color: rgba(26, 115, 232, 0.1);
+}
+
+/* Pola grid latar sedikit lebih tegas di atas putih */
+html:not(.dark) .bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(15, 23, 42, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.06) 1px, transparent 1px);
+}
+
+/* Hero: gradien biru lembut menggantikan putih transparan */
+html:not(.dark) [class~="from-white/[0.07]"] {
+  background-image: linear-gradient(to bottom right, rgba(26, 115, 232, 0.08), rgba(26, 115, 232, 0.03), transparent) !important;
 }
 
 /* Hormati preferensi pengguna yang mengurangi animasi */

@@ -1,10 +1,30 @@
 <!DOCTYPE html>
-<html lang="id" class="dark">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="PixelStore - Katalog aplikasi mini yang ringan, modern, dan responsif." />
-  <title>PixelStore &mdash; Katalog Aplikasi</title>
+
+  <!-- Terapkan tema sedini mungkin (sebelum render) supaya tidak berkedip. -->
+  <script>
+    (function () {
+      var theme = 'system';
+      try {
+        theme = window.localStorage.getItem('nesastore-theme') || 'system';
+      } catch (e) {
+        theme = 'system';
+      }
+      if (['light', 'dark', 'system'].indexOf(theme) === -1) theme = 'system';
+      var prefersDark =
+        !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      var isDark = theme === 'dark' || (theme === 'system' && prefersDark);
+      var root = document.documentElement;
+      root.classList.toggle('dark', isDark);
+      root.setAttribute('data-theme', theme);
+    })();
+  </script>
+  <meta name="description" content="NesaStore - App-Store nya warga NESA. Katalog aplikasi mini yang ringan, modern, dan responsif." />
+  <title>NesaStore &mdash; Katalog Aplikasi</title>
+  <link rel="icon" type="image/png" href="img/logo.png" />
 
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -27,7 +47,14 @@
         'h-14', 'w-14', 'h-16', 'w-16', 'h-24', 'w-24', 'h-28', 'w-28',
         'sm:h-28', 'sm:w-28', 'sm:h-20', 'sm:w-36', 'sm:h-32', 'sm:w-32',
         'w-28', 'h-20', 'w-36', 'text-xs', 'text-sm', 'text-xl', 'text-2xl',
-        'text-3xl', 'text-5xl', 'text-6xl', 'sm:text-6xl', 'rounded-3xl'
+        'text-3xl', 'text-5xl', 'text-6xl', 'sm:text-6xl', 'rounded-3xl',
+        /* Tombol instal / hapus (dibuat lewat JavaScript) */
+        'bg-brand-500', 'bg-brand-600', 'hover:bg-brand-600', 'group-hover:bg-brand-600',
+        'w-fit', 'opacity-90',
+        'bg-brand-500/80', 'bg-brand-500/10', 'border-brand-500/50',
+        'text-brand-500', 'text-brand-600', 'dark:text-brand-400',
+        /* Accent kuning dari logo (badge "Terinstal" & bintang) */
+        'border-accent-400/40', 'bg-accent-400/15', 'text-accent-300', 'text-accent-400'
       ],
       theme: {
         extend: {
@@ -41,10 +68,19 @@
               850: '#111629',
               800: '#161c33'
             },
+            /* Primary biru NesaStore (dipakai di mode terang & gelap) */
             brand: {
-              400: '#818cf8',
-              500: '#6366f1',
-              600: '#4f46e5'
+              300: '#8AB4F8',
+              400: '#5E97F6',
+              500: '#1A73E8',
+              600: '#1557B0',
+              700: '#0F4288'
+            },
+            /* Accent kuning dari logo */
+            accent: {
+              300: '#FDE68A',
+              400: '#FCD34D',
+              500: '#F5BE23'
             }
           },
           keyframes: {
@@ -97,31 +133,44 @@
   <!-- ===================== HEADER ===================== -->
   <header class="sticky top-0 z-40 border-b border-white/5 bg-ink-950/70 backdrop-blur-xl">
     <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3.5 sm:px-6 lg:px-8">
-      <a href="#/" id="brand-link" class="group flex items-center gap-3">
-        <span class="relative grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-fuchsia-500 shadow-lg shadow-brand-600/30 transition group-hover:scale-105">
-          <svg class="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-            <path d="m3.3 7 8.7 5 8.7-5"></path>
-            <path d="M12 22V12"></path>
-          </svg>
-        </span>
-        <span class="leading-tight">
-          <span class="block text-base font-extrabold tracking-tight text-white">PixelStore</span>
-          <span class="block text-[11px] font-medium text-slate-400">Katalog aplikasi mini</span>
+      <a href="#/" id="brand-link" class="group flex min-w-0 items-center gap-2 sm:gap-3">
+        <img
+          src="img/logo.png"
+          alt="NesaStore"
+          class="h-9 w-auto max-w-[8.5rem] shrink-0 rounded-lg object-contain transition group-hover:scale-105 sm:h-10 sm:max-w-[9.5rem]"
+        />
+        <span class="min-w-0 leading-tight">
+          <span class="block truncate text-base font-extrabold tracking-tight text-white">NesaStore</span>
+          <span class="block truncate text-[11px] font-medium text-slate-400">App-Store nya warga NESA</span>
         </span>
       </a>
 
-      <nav class="hidden items-center gap-1 text-sm font-medium md:flex">
-        <a href="#/" class="nav-link rounded-lg px-3 py-2 text-slate-300 transition hover:bg-white/5 hover:text-white">Katalog</a>
-        <a href="#/tentang" class="nav-link rounded-lg px-3 py-2 text-slate-300 transition hover:bg-white/5 hover:text-white">Tentang</a>
-        <span class="ml-2 hidden items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 lg:inline-flex">
-          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Demo lokal
-        </span>
-      </nav>
+      <div class="flex items-center gap-2 sm:gap-3">
+        <nav class="hidden items-center gap-1 text-sm font-medium md:flex">
+          <a href="#/" class="nav-link rounded-lg px-3 py-2 text-slate-300 transition hover:bg-white/5 hover:text-white">Katalog</a>
+          <a href="#/tentang" class="nav-link rounded-lg px-3 py-2 text-slate-300 transition hover:bg-white/5 hover:text-white">Tentang</a>
+          <span class="ml-2 hidden items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 lg:inline-flex">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Demo lokal
+          </span>
+        </nav>
 
-      <button id="header-search-btn" type="button" class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white md:hidden" aria-label="Cari aplikasi">
-        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
-      </button>
+        <!-- Pemilih tema: Terang / Gelap / Sistem -->
+        <div id="theme-toggle" class="segmented" role="group" aria-label="Pilih tema tampilan">
+          <button type="button" class="seg-btn" data-theme-value="light" title="Tema terang" aria-label="Tema terang" aria-pressed="false">
+            <span class="seg-ico" aria-hidden="true">&#9728;&#65039;</span><span class="seg-label">Light</span>
+          </button>
+          <button type="button" class="seg-btn" data-theme-value="dark" title="Tema gelap" aria-label="Tema gelap" aria-pressed="false">
+            <span class="seg-ico" aria-hidden="true">&#127769;</span><span class="seg-label">Dark</span>
+          </button>
+          <button type="button" class="seg-btn" data-theme-value="system" title="Ikuti tema sistem" aria-label="Ikuti tema sistem" aria-pressed="false">
+            <span class="seg-ico" aria-hidden="true">&#128187;</span><span class="seg-label">System</span>
+          </button>
+        </div>
+
+        <button id="header-search-btn" type="button" class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white md:hidden" aria-label="Cari aplikasi">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -206,7 +255,7 @@
   <!-- ===================== FOOTER ===================== -->
   <footer class="border-t border-white/5 bg-ink-950/60 py-8">
     <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 text-sm text-slate-500 sm:flex-row sm:px-6 lg:px-8">
-      <p>&copy; <span id="year">&mdash;</span> PixelStore &mdash; Demo katalog aplikasi. Dibuat dengan HTML, Tailwind CSS &amp; Vanilla JavaScript.</p>
+      <p>&copy; <span id="year">&mdash;</span> NesaStore &mdash; App-Store nya warga NESA. Demo katalog aplikasi yang dibuat dengan HTML, Tailwind CSS &amp; Vanilla JavaScript.</p>
       <p class="flex items-center gap-2">
         <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Semua data bersifat dummy.
       </p>
