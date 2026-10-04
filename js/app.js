@@ -88,7 +88,7 @@
   function installedPill(app) {
     if (!isInstalled(app.id)) return '';
     return (
-      '<span class="inline-flex shrink-0 items-center gap-1 rounded-full border border-accent-400/40 bg-accent-400/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-accent-300">' +
+      '<span class="tag-neutral inline-flex shrink-0 items-center gap-1 rounded-full border border-accent-400/40 bg-accent-400/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-accent-300">' +
       '<svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>' +
       'Terinstal' +
       '</span>'
@@ -100,7 +100,7 @@
     return (
       '<article data-app="' +
       escapeHtml(app.id) +
-      '" class="app-card group flex cursor-pointer flex-col rounded-3xl border border-white/10 bg-white/[0.035] p-5 backdrop-blur-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400" tabindex="0" role="link" aria-label="Buka detail ' +
+      '" class="app-card group flex cursor-pointer flex-col rounded-3xl border border-white/10 bg-white/[0.035] p-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400" tabindex="0" role="link" aria-label="Buka detail ' +
       escapeHtml(app.name) +
       '">' +
 
@@ -279,7 +279,7 @@
       .map(function (h) {
         return (
           '<li class="flex items-start gap-3 text-sm text-slate-300">' +
-          '<span class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-300">' +
+          '<span class="tag-neutral mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-300">' +
           '<svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>' +
           '</span>' +
           '<span>' +
@@ -403,9 +403,9 @@
           escapeHtml(entry.version) +
           '</span>' +
           (i === 0
-            ? '<span class="rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-300">Terbaru</span>'
+            ? '<span class="tag-neutral rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-300">Terbaru</span>'
             : '') +
-          '<span class="rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ' +
+          '<span class="tag-neutral rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ' +
           badge +
           '">' +
           escapeHtml(entry.type) +
@@ -560,10 +560,10 @@
 
     return (
       '<div class="relative mt-4 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-8">' +
-      '<div class="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full blur-3xl" style="background-color:' +
+      '<div class="deco-light-only pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full blur-3xl" style="background-color:' +
       app.theme.from +
       '55"></div>' +
-      '<div class="pointer-events-none absolute -bottom-28 -left-16 h-64 w-64 rounded-full blur-3xl" style="background-color:' +
+      '<div class="deco-light-only pointer-events-none absolute -bottom-28 -left-16 h-64 w-64 rounded-full blur-3xl" style="background-color:' +
       app.theme.accent +
       '33"></div>' +
 
@@ -581,7 +581,7 @@
       '<span class="font-semibold text-brand-400">' +
       escapeHtml(app.developerInfo.studio) +
       '</span>' +
-      '<span class="inline-flex items-center gap-1 rounded-full border border-sky-500/25 bg-sky-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-sky-300">' +
+      '<span class="tag-neutral inline-flex items-center gap-1 rounded-full border border-sky-500/25 bg-sky-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-sky-300">' +
       '<svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>' +
       'Terverifikasi' +
       '</span>' +

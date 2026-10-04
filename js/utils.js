@@ -89,12 +89,14 @@ function categoryStyle(category) {
 
 function categoryBadge(category, extra) {
   return (
-    '<span class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ' +
+    /* Kelas .cat-badge membuat lencana ini abu-abu netral saat mode gelap
+       (lihat blok "MODE GELAP MINIMALIS" pada css/custom.css). */
+    '<span class="cat-badge inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ' +
     categoryStyle(category).badge +
     ' ' +
     (extra || '') +
     '">' +
-    '<span class="h-1.5 w-1.5 rounded-full" style="background-color:' +
+    '<span class="cat-dot h-1.5 w-1.5 rounded-full" style="background-color:' +
     categoryStyle(category).hex +
     '"></span>' +
     escapeHtml(category) +
@@ -105,7 +107,9 @@ function categoryBadge(category, extra) {
 /* ---------------------------------------------------------------- Ikon tile */
 function iconTile(app, sizeClasses, fontSizeClasses, radiusClass, extraClass) {
   return (
-    '<span class="grid shrink-0 place-items-center ' +
+    /* .app-tile: di mode gelap gradient + glow tile diganti permukaan abu solid
+       (lihat css/custom.css). Gradient tetap dipertahankan untuk mode terang. */
+    '<span class="app-tile grid shrink-0 place-items-center ' +
     (radiusClass || 'rounded-2xl') +
     ' ' +
     (extraClass || '') +
@@ -234,8 +238,9 @@ function toast(message, type, duration) {
   var kind = TOAST_TONES[type] ? type : 'info';
 
   var el = document.createElement('div');
+  /* Latar solid (mode gelap #1c2128 / mode terang putih) → tidak perlu backdrop-blur. */
   el.className =
-    'toast flex items-start gap-3 rounded-2xl border border-white/10 bg-ink-850/95 p-4 shadow-2xl shadow-black/60 backdrop-blur-xl';
+    'toast flex items-start gap-3 rounded-2xl border border-white/10 bg-ink-850/95 p-4 shadow-2xl shadow-black/60';
   el.setAttribute('role', 'status');
   el.innerHTML =
     '<span class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl border ' +
