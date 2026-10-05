@@ -38,7 +38,7 @@ const APPS = [
     version: '1.0.0',
     updated: '2026-10-04',
     size: '30 MB',
-    apkUrl: 'https://github.com/Ramaa-linux/nesasto/releases/latest/download/fiks-faham.apk',
+    apkUrl: 'https://github.com/Ramaa-linux/nesastore/releases/latest/download/fiks-faham.apk',
     theme: { from: '#f59e0b', to: '#ef4444', accent: '#fbbf24' },
     shortDescription:
       'Platform edukasi UI/UX dengan materi, pre-test, post-test, dan video pembelajaran.',
@@ -97,7 +97,7 @@ const APPS = [
     version: '1.0.0',
     updated: '2026-10-04',
     size: '26 MB',
-    apkUrl: 'https://github.com/Ramaa-linux/nesasto/releases/latest/download/net-skill.apk',
+    apkUrl: 'https://github.com/Ramaa-linux/nesastore/releases/latest/download/net-skill.apk',
     theme: { from: '#0ea5e9', to: '#14b8a6', accent: '#818cf8' },
     shortDescription:
       'Platform edukasi jaringan komputer dengan materi lengkap, pre-test, dan post-test.',
@@ -156,7 +156,7 @@ const APPS = [
     version: '1.0.0',
     updated: '2026-10-04',
     size: '120 MB',
-    apkUrl: 'https://github.com/Ramaa-linux/nesasto/releases/latest/download/craft-cpp.apk',
+    apkUrl: 'https://github.com/Ramaa-linux/nesastore/releases/latest/download/craft-cpp.apk',
     theme: { from: '#f59e0b', to: '#ef4444', accent: '#fbbf24' },
     shortDescription:
       'Aplikasi pembelajaran C++ dengan materi lengkap dan playground code interaktif.',
@@ -216,7 +216,7 @@ const APPS = [
     version: '1.0.0',
     updated: '2026-10-04',
     size: '70 MB',
-    apkUrl: 'https://github.com/Ramaa-linux/nesasto/releases/latest/download/netropia.apk',
+    apkUrl: 'https://github.com/Ramaa-linux/nesastore/releases/latest/download/netropia.apk',
     theme: { from: '#22c55e', to: '#0891b2', accent: '#fde047' },
     shortDescription:
       'Platform pembelajaran Teknik Komputer & Jaringan dengan materi, modul, simulasi jaringan, dan asisten AI.',
