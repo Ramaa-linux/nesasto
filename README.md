@@ -38,6 +38,8 @@ _selftest.html    Alat uji mandiri (dev tool) — lihat bagian di bawah
   Pilihan disimpan di `localStorage` (`nesastore-theme`), diterapkan sebelum render
   pertama sehingga tidak ada kedipan, dan mode *Sistem* otomatis mengikuti perubahan
   `prefers-color-scheme` perangkat. Di layar kecil kontrolnya menjadi ringkas (ikon saja).
+  Ikon tiap opsi (matahari / bulan / monitor) memakai **SVG Feather 14×14** dengan `stroke:
+  currentColor` — bukan emoji — agar konsisten dengan ikon lain di situs.
 - **Router berbasis hash** dengan penanda nav aktif dan judul dokumen yang berubah.
   Penanda aktif berlaku untuk kedua baris nav (desktop & mobile).
 - **Header responsif**: menampilkan **logo saja** — wordmark "NesaStore" + tagline sudah
@@ -59,7 +61,7 @@ _selftest.html    Alat uji mandiri (dev tool) — lihat bagian di bawah
 | Ubah dropdown urutan | Mengurutkan ulang daftar |
 | Klik kartu / `Lihat Detail` | Masuk ke halaman detail (juga bisa via Enter/Spasi) |
 | Klik `Instal Sekarang` | Menjalankan simulasi instal |
-| Klik `☀️ Light` / `🌙 Dark` / `💻 System` | Mengganti tema tampilan; pilihan bertahan setelah muat ulang |
+| Klik `Light` / `Dark` / `System` | Mengganti tema tampilan; pilihan bertahan setelah muat ulang |
 | Klik `Tentang` di nav | Membuka `#/tentang` |
 | Klik `Ajukan Aplikasi` di header | Membuka Google Form pengajuan aplikasi di tab baru |
 
