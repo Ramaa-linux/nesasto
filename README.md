@@ -39,10 +39,12 @@ _selftest.html    Alat uji mandiri (dev tool) — lihat bagian di bawah
 - **Header responsif**: menampilkan **logo saja** — wordmark "NesaStore" + tagline sudah
   menyatu di dalam gambar, jadi teks di sebelahnya dihapus supaya tidak berulang. Logo
   berskala tinggi `32px → 40px → 48px` (`base` → `sm` → `lg`) dengan `max-width` sebagai
-  pengaman rasio. Di layar ≥ `md` nav `Katalog`/`Tentang` + badge `Demo lokal` berada di
-  baris yang sama; di bawah `md` nav dipindah ke **baris kedua** yang ringkas supaya tetap
-  terjangkau pada lebar 360 px. Pemilih tema tetap di kanan (di bawah 640 px menjadi
-  ringkas: ikon saja) bersama tombol cari.
+  pengaman rasio. Di layar ≥ `md` nav `Katalog`/`Tentang` + tombol **Ajukan Aplikasi**
+  berada di baris yang sama; di bawah `md` nav dipindah ke **baris kedua** yang ringkas
+  supaya tetap terjangkau pada lebar 360 px. Tombol `Ajukan Aplikasi` (tautan luar ke
+  Google Form) menyusut menjadi **ikon upload saja** di bawah 768 px — lihat
+  `.submit-app-btn` pada `css/custom.css`. Pemilih tema tetap di
+  kanan (di bawah 640 px menjadi ringkas: ikon saja) bersama tombol cari.
 
 ## Cara memakai
 
@@ -55,6 +57,7 @@ _selftest.html    Alat uji mandiri (dev tool) — lihat bagian di bawah
 | Klik `Instal Sekarang` | Menjalankan simulasi instal |
 | Klik `☀️ Light` / `🌙 Dark` / `💻 System` | Mengganti tema tampilan; pilihan bertahan setelah muat ulang |
 | Klik `Tentang` di nav | Membuka `#/tentang` |
+| Klik `Ajukan Aplikasi` di header | Membuka Google Form pengajuan aplikasi di tab baru |
 
 ## Catatan teknis
 
@@ -80,7 +83,7 @@ _selftest.html    Alat uji mandiri (dev tool) — lihat bagian di bawah
 ## Menguji: `_selftest.html`
 
 `_selftest.html` **sengaja dipertahankan** sebagai dev tool. Halaman ini memuat
-`js/data.js` + `js/utils.js` dan menjalankan 42 pemeriksaan (integritas data,
+`js/data.js` + `js/utils.js` dan menjalankan 95 pemeriksaan (integritas data,
 helper format, validitas data-URI SVG, ketersediaan `localStorage` di `file://`,
 dan bolak-balik status instal), lalu menulis ringkasannya ke `<pre id="hasil">`.
 
@@ -92,7 +95,7 @@ Buka langsung di peramban, atau otomatis lewat headless Chrome:
   --dump-dom 'file:///D:/Program/tes kode/Nyoba agent/_selftest.html'
 ```
 
-Cari baris terakhir: `=== RINGKASAN: 42 lulus, 0 gagal ===`.
+Cari baris terakhir: `=== RINGKASAN: 95 lulus, 0 gagal ===`.
 
 Verifikasi DOM halaman utama juga bisa memakai perintah serupa dengan menambahkan
 hash rute, misalnya `index.html#/tentang`. Satu-satunya pesan konsol yang muncul

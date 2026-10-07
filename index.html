@@ -160,10 +160,27 @@
         <nav class="hidden items-center gap-1 text-sm font-medium md:flex">
           <a href="#/" class="nav-link rounded-lg px-3 py-2 text-slate-300 transition hover:bg-white/5 hover:text-white">Katalog</a>
           <a href="#/tentang" class="nav-link rounded-lg px-3 py-2 text-slate-300 transition hover:bg-white/5 hover:text-white">Tentang</a>
-          <span class="ml-2 hidden items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 lg:inline-flex">
-            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Demo lokal
-          </span>
         </nav>
+
+        <!-- Tombol "Ajukan Aplikasi": tautan luar ke Google Form. Label teks
+             disembunyikan di layar <= 768px sehingga tersisa ikon upload saja
+             (lihat .submit-app-btn pada css/custom.css). -->
+        <a
+          id="submit-app-btn"
+          class="submit-app-btn"
+          href="https://forms.gle/t4fayUJek4CPSrry7"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Ajukan aplikasi baru ke NesaStore (buka Google Form)"
+          aria-label="Ajukan aplikasi baru ke NesaStore"
+        >
+          <svg class="submit-app-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 16V4"></path>
+            <path d="m7 9 5-5 5 5"></path>
+            <path d="M4 17v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"></path>
+          </svg>
+          <span class="submit-app-label">Ajukan Aplikasi</span>
+        </a>
 
         <!-- Pemilih tema: Terang / Gelap / Sistem -->
         <div id="theme-toggle" class="segmented" role="group" aria-label="Pilih tema tampilan">
@@ -190,9 +207,6 @@
       <div class="mx-auto flex max-w-7xl items-center gap-1 px-4 py-1 text-sm font-medium sm:px-6">
         <a href="#/" class="nav-link flex-1 rounded-lg px-3 py-2 text-center text-slate-300 transition hover:bg-white/5 hover:text-white">Katalog</a>
         <a href="#/tentang" class="nav-link flex-1 rounded-lg px-3 py-2 text-center text-slate-300 transition hover:bg-white/5 hover:text-white">Tentang</a>
-        <span class="ml-1 inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300">
-          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Demo lokal
-        </span>
       </div>
     </nav>
   </header>
