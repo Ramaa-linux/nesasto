@@ -309,6 +309,51 @@ html:not(.dark) .seg-btn:hover {
   color: #0f172a;
 }
 
+/* --- Tombol "Ajukan Aplikasi" di header ---------------------------------
+   Tautan luar ke Google Form: biru solid #1A73E8 (sama dengan brand-500)
+   dengan teks putih. Warna di-set lewat kelas ini (bukan utilitas) supaya
+   aturan `html.dark [class~="text-white"]` di bawah tidak menimpanya.
+   Desktop : padding 8×16, radius 8, font 14/600, ikon + label.
+   <= 768px: padding 6×10, label disembunyikan sehingga tersisa ikon upload
+             saja — tetap bisa diklik & punya aria-label. */
+.submit-app-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background-color: #1a73e8;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+.submit-app-btn:hover {
+  background-color: #1557b0;
+}
+.submit-app-btn:focus-visible {
+  outline: 2px solid #1a73e8;
+  outline-offset: 2px;
+}
+.submit-app-btn .submit-app-ico {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+@media (max-width: 768px) {
+  .submit-app-btn {
+    gap: 0;
+    padding: 6px 10px;
+  }
+  .submit-app-btn .submit-app-label {
+    display: none;
+  }
+}
+
 /* ==========================================================================
    MODE TERANG — override utilitas gelap bawaan
    ========================================================================== */
