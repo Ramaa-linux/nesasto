@@ -18,10 +18,11 @@
     }
 
     /* --- Data --- */
-    cek('APPS berisi 6 aplikasi', APPS.length === 6, 'jumlah=' + APPS.length);
+    cek('APPS berisi 4 aplikasi', APPS.length === 4, 'jumlah=' + APPS.length);
 
     var ids = APPS.map(function (a) { return a.id; });
     cek('id unik', new Set(ids).size === ids.length);
+    cek('urutan id sesuai daftar', ids.join(',') === 'fiks-faham,net-skill,craft-cpp,netropia', ids.join(','));
 
     var kategoriUnik = {};
     var fieldsOk = true;
@@ -29,7 +30,7 @@
     APPS.forEach(function (a) {
       kategoriUnik[a.category] = true;
       var wajib = ['id', 'name', 'tagline', 'category', 'rating', 'ratingCount',
-        'downloads', 'icon', 'version', 'updated', 'size', 'theme',
+        'downloads', 'icon', 'version', 'updated', 'size', 'apkUrl', 'theme',
         'shortDescription', 'fullDescription', 'highlights', 'screenshots',
         'changelog', 'developerInfo', 'technical'];
       wajib.forEach(function (k) {
@@ -47,27 +48,39 @@
       if (!Array.isArray(a.screenshots) || a.screenshots.length < 4) { fieldsOk = false; masalah += a.id + '.screenshots '; }
       if (!Array.isArray(a.fullDescription) || a.fullDescription.length < 2) { fieldsOk = false; masalah += a.id + '.fullDescription '; }
       if (!Array.isArray(a.highlights) || a.highlights.length < 3) { fieldsOk = false; masalah += a.id + '.highlights '; }
-      if (!Array.isArray(a.changelog) || a.changelog.length < 3) { fieldsOk = false; masalah += a.id + '.changelog '; }
+      if (!Array.isArray(a.changelog) || a.changelog.length < 1) { fieldsOk = false; masalah += a.id + '.changelog '; }
     });
     cek('semua field wajib lengkap', fieldsOk, masalah);
 
     var kat = Object.keys(kategoriUnik);
-    cek('minimal 3 kategori berbeda', kat.length >= 3, kat.join(', '));
-    cek('kategori Game/Produktivitas/Tools ada',
-      kat.indexOf('Game') !== -1 && kat.indexOf('Produktivitas') !== -1 && kat.indexOf('Tools') !== -1,
-      kat.join(', '));
+    cek('minimal 1 kategori berbeda', kat.length >= 1, kat.join(', '));
+    cek('kategori Produktivitas ada', kat.indexOf('Produktivitas') !== -1, kat.join(', '));
 
     cek('CATEGORIES diawali "Semua"', CATEGORIES[0] === 'Semua', CATEGORIES.join(' | '));
     cek('CATEGORIES jumlah = kategori + 1', CATEGORIES.length === kat.length + 1);
 
     cek('APP_BY_ID terindeks', Object.keys(APP_BY_ID).length === APPS.length);
-    cek('APP_BY_ID lookup benar', !!(APP_BY_ID['nebula-runner'] && APP_BY_ID['nebula-runner'].name === 'Nebula Runner'));
+    cek('APP_BY_ID lookup benar', !!(APP_BY_ID['fiks-faham'] && APP_BY_ID['fiks-faham'].name === 'FiksFaham'));
+
+    /* --- Ikon & screenshot memakai berkas gambar asli --- */
+    var mediaOk = true;
+    var mediaMasalah = '';
+    APPS.forEach(function (a) {
+      if (!/^img\/asset\/icon\/[a-z0-9-]+\.png$/.test(a.icon)) {
+        mediaOk = false; mediaMasalah += a.id + '.icon ';
+      }
+      a.screenshots.forEach(function (s, i) {
+        if (!s.title || !s.caption) { mediaOk = false; mediaMasalah += a.id + '[' + i + '].judul '; }
+        var pola = 'img/asset/screenshoot/' + a.id + '/' + a.id + '-' + (i + 1) + '.jpg';
+        if (s.src !== pola) { mediaOk = false; mediaMasalah += a.id + '[' + i + '].src '; }
+      });
+    });
+    cek('ikon memakai path berkas gambar', mediaOk, mediaMasalah);
+    cek('tiap aplikasi punya >= 4 screenshot', APPS.every(function (a) { return a.screenshots.length >= 4; }));
+    cek('CraftC++ punya 5 screenshot', APP_BY_ID['craft-cpp'].screenshots.length === 5);
 
     APPS.forEach(function (a) {
       cek('rating ' + a.id + ' antara 0-5', a.rating >= 0 && a.rating <= 5, String(a.rating));
-      a.screenshots.forEach(function (s, i) {
-        if (!s.title || !s.caption) { gagal++; log.push('FAIL  screenshot ' + a.id + '[' + i + '] tidak lengkap'); }
-      });
       a.changelog.forEach(function (c, i) {
         if (!c.version || !c.date || !Array.isArray(c.notes) || c.notes.length === 0) {
           gagal++; log.push('FAIL  changelog ' + a.id + '[' + i + '] tidak lengkap');
@@ -75,38 +88,68 @@
       });
     });
     log.push('PASS  semua screenshot & changelog lengkap');
+    cek('rating & unduhan masih kosong (0)', APPS.every(function (a) {
+      return a.rating === 0 && a.ratingCount === 0 && a.downloads === '0';
+    }));
 
     /* --- Helper --- */
     cek('escapeHtml', escapeHtml('<b>"x"&</b>') === '&lt;b&gt;&quot;x&quot;&amp;&lt;/b&gt;', escapeHtml('<b>"x"&</b>'));
     cek('escapeHtml null', escapeHtml(null) === '');
     cek('formatRating(4.75)', formatRating(4.75) === '4.8', formatRating(4.75));
+    cek('formatRating(0)', formatRating(0) === '0.0', formatRating(0));
     cek('formatCount(128450)', formatCount(128450).indexOf('128') === 0, formatCount(128450));
-    cek('formatDateLong', formatDateLong('2026-08-28') === '28 Agustus 2026', formatDateLong('2026-08-28'));
+    cek('formatDateLong', formatDateLong('2026-10-04') === '4 Oktober 2026', formatDateLong('2026-10-04'));
 
     var bintang = starRatingHTML(4.7);
     cek('starRatingHTML punya 10 svg bintang', (bintang.match(/<svg/g) || []).length === 10);
     cek('starRatingHTML pakai clip-path', bintang.indexOf('clip-path') !== -1);
 
-    cek('categoryBadge kategori dikenal', categoryBadge('Game').indexOf('fuchsia') !== -1);
+    cek('categoryBadge kategori dikenal', categoryBadge('Produktivitas').indexOf('sky') !== -1);
     cek('categoryBadge fallback', categoryBadge('Lain').indexOf('slate') !== -1);
 
+    /* --- Tile ikon: berkas gambar + cadangan emoji --- */
     var tile = iconTile(APPS[0], 'h-16 w-16', 'text-3xl');
-    cek('iconTile berisi gradien+emoji', tile.indexOf('linear-gradient') !== -1 && tile.indexOf(APPS[0].icon) !== -1);
+    cek('iconTile memakai berkas gambar', tile.indexOf('<img') !== -1 && tile.indexOf(APPS[0].icon) !== -1);
+    cek('iconTile memakai kelas .app-tile-img', tile.indexOf('app-tile-img') !== -1);
+    cek('iconTile menyiapkan cadangan inisial + onerror',
+      tile.indexOf('>F</span>') !== -1 && tile.indexOf('onerror="this.remove()"') !== -1);
+    cek('iconTile tetap memakai gradien tema', tile.indexOf('linear-gradient') !== -1);
 
-    /* --- Screenshot SVG --- */
+    var tileEmoji = iconTile(
+      { name: 'Demo', icon: '🚀', theme: { from: '#111111', to: '#222222' } },
+      'h-16 w-16',
+      'text-3xl'
+    );
+    cek('iconTile masih mendukung emoji', tileEmoji.indexOf('🚀') !== -1 && tileEmoji.indexOf('<img') === -1);
+
+    cek('isImageIcon(): .png/.jpg dikenali', isImageIcon('img/asset/icon/x.png') && isImageIcon('a/b.JPG'));
+    cek('isImageIcon(): emoji/kosong ditolak', isImageIcon('🚀') === false && isImageIcon('') === false);
+
+    /* --- Sumber gambar screenshot --- */
+    cek('screenshotSrc memakai berkas asli', screenshotSrc(APPS[0], 0) === APPS[0].screenshots[0].src);
+    var appTanpaSrc = {
+      name: 'Demo',
+      category: 'Tools',
+      theme: { from: '#111111', to: '#222222', accent: '#333333' },
+      screenshots: [{ title: 'Menu', caption: 'Contoh.' }]
+    };
+    cek('screenshotSrc jatuh ke placeholder SVG',
+      screenshotSrc(appTanpaSrc, 0).indexOf('data:image/svg+xml;charset=utf-8,') === 0);
+
+    /* --- Screenshot SVG (cadangan) --- */
     var svgUri = placeholderSVG(APPS[0], 0);
     cek('placeholderSVG diawali data URI', svgUri.indexOf('data:image/svg+xml;charset=utf-8,') === 0);
     var svgText = decodeURIComponent(svgUri.split(',')[1]);
     cek('SVG valid (tag <svg> & </svg>)', svgText.indexOf('<svg') === 0 && svgText.indexOf('</svg>') === svgText.length - 6);
-    cek('SVG memuat nama aplikasi', svgText.indexOf('NEBULA RUNNER') !== -1);
-    cek('SVG memuat judul screenshot', svgText.indexOf('Menu Utama') !== -1);
+    cek('SVG memuat nama aplikasi', svgText.indexOf(APPS[0].name.toUpperCase()) !== -1);
+    cek('SVG memuat judul screenshot', svgText.indexOf('Home') !== -1);
     cek('data URI tidak mengandung "#" mentah', svgUri.indexOf('#') === -1);
     cek('SVG memakai referensi url(#bg) & url(#fade)',
       svgText.indexOf('url(#bg)') !== -1 && svgText.indexOf('url(#fade)') !== -1);
     cek('SVG punya warna hex valid', svgText.indexOf('fill="#080b16"') !== -1);
 
-    for (var v = 0; v < 4; v++) {
-      var s = decodeURIComponent(placeholderSVG(APPS[1], v).split(',')[1]);
+    for (var v = 0; v < 5; v++) {
+      var s = decodeURIComponent(placeholderSVG(APPS[2], v).split(',')[1]);
       cek('placeholderSVG varian ' + v + ' valid', s.indexOf('<svg') === 0 && s.indexOf('</svg>') !== -1);
     }
 
@@ -123,13 +166,103 @@
     }
     cek('localStorage tersedia (file://)', lsOk, lsErr || 'ok');
 
-    /* --- Status instalasi (round trip) --- */
-    cek('awalnya belum terinstal', isInstalled('metrocalc') === false);
-    setInstalled('metrocalc', true);
-    cek('setInstalled(true) -> terinstal', isInstalled('metrocalc') === true);
-    setInstalled('metrocalc', false);
-    cek('setInstalled(false) -> tidak terinstal', isInstalled('metrocalc') === false);
-    cek('peta instalasi bersih', Object.keys(getInstalledMap()).length === 0, JSON.stringify(getInstalledMap()));
+    /* --- Ketersediaan APK (menggantikan konsep "install") --- */
+    cek('semua aplikasi punya field apkUrl (string)',
+      APPS.every(function (a) { return typeof a.apkUrl === 'string'; }));
+    cek('semua aplikasi siap diunduh',
+      APPS.every(function (a) { return hasApk(a); }));
+    cek('kasus tanpa APK tetap terdeteksi (uji sintetis)',
+      hasApk({ apkUrl: '' }) === false && hasApk({}) === false);
+
+    APPS.forEach(function (a) {
+      cek('apkUrl ' + a.id + ' berupa http(s)', /^https?:\/\//.test(a.apkUrl), a.apkUrl);
+      cek('apkUrl ' + a.id + ' mengarah ke rilis GitHub',
+        /^https:\/\/github\.com\/[^\/]+\/[^\/]+\/releases\/download\//.test(a.apkUrl) &&
+        a.apkUrl.slice(-(a.id.length + 5)) === '/' + a.id + '.apk',
+        a.apkUrl);
+    });
+
+    var badgeSiap = apkStatusBadge({ apkUrl: 'https://x.example/a.apk' });
+    var badgeBelum = apkStatusBadge({ apkUrl: '' });
+
+    cek('hasApk() menolak apkUrl kosong', hasApk({ apkUrl: '   ' }) === false);
+    cek('hasApk() menolak objek tanpa apkUrl', hasApk({}) === false);
+    cek('hasApk() menerima apkUrl valid', hasApk({ apkUrl: 'https://x.example/a.apk' }) === true);
+    cek('lencana ada APK -> "APK Tersedia"', badgeSiap.indexOf('APK Tersedia') !== -1);
+    cek('lencana tanpa APK -> "Segera Hadir"', badgeBelum.indexOf('Segera Hadir') !== -1);
+    cek('lencana siap tidak menyebut "Segera Hadir"', badgeSiap.indexOf('Segera Hadir') === -1);
+    cek('lencana kosong tidak menyebut "APK Tersedia"', badgeBelum.indexOf('APK Tersedia') === -1);
+    cek('lencana siap memakai aksen emerald', badgeSiap.indexOf('text-emerald-300') !== -1);
+    cek('lencana kosong memakai aksen slate', badgeBelum.indexOf('text-slate-300') !== -1);
+    cek('lencana memakai .tag-neutral (netral di mode gelap)', badgeBelum.indexOf('tag-neutral') !== -1);
+    cek('lencana berupa elemen <span> yang tertutup',
+      badgeBelum.indexOf('<span') === 0 && badgeBelum.indexOf('</span>') !== -1);
+    cek('konsep install sudah dihapus dari utils.js',
+      typeof isInstalled === 'undefined' && typeof setInstalled === 'undefined' &&
+      typeof getInstalledMap === 'undefined');
+
+    /* --- Versi Android minimum (baris di bawah lencana kategori) --- */
+    cek('androidRequires() membaca technical.requires',
+      androidRequires(APPS[0]) === 'Android 8.0+', androidRequires(APPS[0]));
+    cek('androidRequires() kosong bila data tak ada',
+      androidRequires({}) === '' && androidRequires(null) === '');
+    APPS.forEach(function (a) {
+      cek('technical.requires ' + a.id + ' terisi',
+        androidRequires(a).indexOf('Android') === 0, androidRequires(a));
+    });
+
+    /* --- Bagian "Versi Lain": riwayat versi + tautan GitHub Releases --- */
+    cek('releaseRepoUrl() diturunkan dari apkUrl',
+      releaseRepoUrl(APPS[0]) === 'https://github.com/nesastore/nesastore.github.io',
+      releaseRepoUrl(APPS[0]));
+    cek('releaseRepoUrl() kosong tanpa apkUrl GitHub', releaseRepoUrl({ apkUrl: '' }) === '');
+    cek('releaseTagPrefix() = "v." dari apkUrl + version',
+      releaseTagPrefix(APPS[0]) === 'v.', releaseTagPrefix(APPS[0]));
+    cek('releaseTagPrefix() cadangan "v"',
+      releaseTagPrefix({ apkUrl: 'https://x/y', version: '1.0.0' }) === 'v');
+    cek('releaseTagUrl() menyusun tautan tag',
+      releaseTagUrl(APPS[0], '1.0.0') ===
+        'https://github.com/nesastore/nesastore.github.io/releases/tag/v.1.0.0',
+      releaseTagUrl(APPS[0], '1.0.0'));
+
+    var histSatu = versionHistory(APPS[0]);
+    cek('versionHistory(): 1 versi -> index 0 terbaru', histSatu.length === 1 && histSatu[0].isLatest === true);
+    cek('versionHistory(): versi terbaru tanpa tautan', histSatu[0].url === '');
+    cek('versionHistory(): tanpa changelog -> daftar kosong', versionHistory({}).length === 0);
+
+    var appMulti = {
+      apkUrl: 'https://github.com/nesastore/nesastore.github.io/releases/download/v.1.2.0/app.apk',
+      version: '1.2.0',
+      changelog: [
+        { version: '1.2.0', date: '10 Oktober 2026', type: 'Fitur baru', notes: ['a'] },
+        { version: '1.1.0', date: '20 September 2026', type: 'Perbaikan', notes: ['b'] },
+        { version: '1.0.0', date: '4 September 2026', type: 'Rilis pertama', notes: ['c'] }
+      ]
+    };
+    var histMulti = versionHistory(appMulti);
+    cek('versionHistory(): jumlah = changelog', histMulti.length === 3);
+    cek('versionHistory(): index 0 = terbaru (1.2.0)',
+      histMulti[0].version === '1.2.0' && histMulti[0].isLatest === true);
+    cek('versionHistory(): sisanya bukan terbaru',
+      histMulti[1].isLatest === false && histMulti[2].isLatest === false);
+    cek('versionHistory(): tanggal terbawa', histMulti[1].date === '20 September 2026', histMulti[1].date);
+    cek('versionHistory(): versi lama tertaut ke tag rilis',
+      histMulti[1].url === 'https://github.com/nesastore/nesastore.github.io/releases/tag/v.1.1.0',
+      histMulti[1].url);
+    cek('versionHistory(): versi terlama v.1.0.0',
+      histMulti[2].url.indexOf('/releases/tag/v.1.0.0') !== -1, histMulti[2].url);
+
+    var appManual = {
+      apkUrl: '',
+      version: '2.0.0',
+      changelog: [
+        { version: '2.0.0', date: 'x' },
+        { version: '1.5.0', date: 'y', releaseUrl: 'https://contoh/tag/1.5.0' }
+      ]
+    };
+    cek('versionHistory(): releaseUrl manual dipakai',
+      versionHistory(appManual)[1].url === 'https://contoh/tag/1.5.0',
+      versionHistory(appManual)[1].url);
 
     document.getElementById('hasil').textContent =
       log.join('\n') + '\n\n=== RINGKASAN: ' + (log.length - gagal) + ' lulus, ' + gagal + ' gagal ===';
