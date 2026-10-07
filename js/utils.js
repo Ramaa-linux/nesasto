@@ -349,3 +349,69 @@ function apkStatusBadge(app, extra) {
     '</span>'
   );
 }
+
+/* ---------------------------------------- Data teknis & riwayat versi
+   Dipakai halaman detail: versi Android minimum (di bawah lencana kategori)
+   serta daftar versi lama pada bagian "Versi Lain".
+   ------------------------------------------------------------------------- */
+
+/** Versi Android minimum (app.technical.requires), mis. "Android 8.0+". */
+function androidRequires(app) {
+  var t = (app && app.technical) || {};
+  return String(t.requires == null ? '' : t.requires).trim();
+}
+
+/** URL repositori GitHub yang diturunkan dari apkUrl, mis. https://github.com/owner/repo */
+function releaseRepoUrl(app) {
+  var url = app && typeof app.apkUrl === 'string' ? app.apkUrl : '';
+  var m = url.match(/^(https?:\/\/github\.com\/[^\/]+\/[^\/]+)\/releases\//i);
+  return m ? m[1] : '';
+}
+
+/**
+ * Awal nama tag rilis, diturunkan dari apkUrl + app.version.
+ *   ".../releases/download/v.1.0.0/app.apk" + version "1.0.0" -> "v."
+ * Bila pola tak dikenali, "v" dipakai sebagai dugaan yang aman.
+ */
+function releaseTagPrefix(app) {
+  var url = app && typeof app.apkUrl === 'string' ? app.apkUrl : '';
+  var m = url.match(/\/releases\/download\/([^\/]+)\//);
+  if (!m) return 'v';
+  var tag = m[1];
+  var versi = app && app.version ? String(app.version) : '';
+  if (versi && tag.length > versi.length && tag.slice(-versi.length) === versi) {
+    return tag.slice(0, tag.length - versi.length);
+  }
+  return 'v';
+}
+
+/** Tautan halaman rilis (tag) untuk satu versi tertentu di GitHub Releases. */
+function releaseTagUrl(app, version) {
+  var repo = releaseRepoUrl(app);
+  if (!repo || !version) return '';
+  return repo + '/releases/tag/' + releaseTagPrefix(app) + version;
+}
+
+/**
+ * Daftar versi untuk bagian "Versi Lain" (rilis terbaru lebih dulu, mengikuti
+ * urutan app.changelog karena index 0 = versi terbaru).
+ * Tiap entri: { version, date, type, isLatest, url }.
+ *   - isLatest true -> versi terbaru (lencana "Terbaru"); url dikosongkan
+ *     karena unduhannya sudah tersedia lewat tombol di atas.
+ *   - versi lama    -> url menuju GitHub Releases (bila dapat diturunkan dari
+ *     apkUrl), atau diisi manual lewat changelog[].releaseUrl.
+ */
+function versionHistory(app) {
+  var list = app && Array.isArray(app.changelog) ? app.changelog : [];
+  return list.map(function (entry, i) {
+    var versi = entry && entry.version != null ? String(entry.version) : '';
+    var url = entry && entry.releaseUrl ? entry.releaseUrl : releaseTagUrl(app, versi);
+    return {
+      version: versi,
+      date: entry && entry.date ? String(entry.date) : '',
+      type: entry && entry.type ? String(entry.type) : '',
+      isLatest: i === 0,
+      url: i === 0 ? '' : url
+    };
+  });
+}

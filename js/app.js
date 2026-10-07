@@ -187,6 +187,8 @@
     '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"></path></svg>';
   var ICON_SPINNER =
     '<svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.2-8.56" opacity="0.9"></path></svg>';
+  var ICON_EXTERNAL =
+    '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"></path><path d="M20 4l-9 9"></path><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"></path></svg>';
   /* Lama hitung mundur (detik) sebelum berkas APK mulai diunduh. */
   var COUNTDOWN_SECONDS = 5;
 
@@ -245,6 +247,100 @@
       '<span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Diperiksa: tidak ada malware' +
       '</div>' +
       '</div>'
+    );
+  }
+
+  /**
+   * Baris versi Android minimum di bawah lencana kategori (sebelum rating).
+   * Nilai diambil dari app.technical.requires lewat androidRequires() (js/utils.js).
+   * Ukuran berkas (📦) tidak diulang di sini karena sudah tampil pada hint
+   * tombol unduh di panel bawah.
+   */
+  function androidMinHTML(app) {
+    var nilai = androidRequires(app);
+    if (!nilai) return '';
+    return (
+      '<p class="mt-2.5 flex items-center gap-1.5 text-xs text-slate-500" id="android-min">' +
+      '<span aria-hidden="true">&#128241;</span>' +
+      '<span>' +
+      escapeHtml(nilai) +
+      '</span>' +
+      '</p>'
+    );
+  }
+
+  /**
+   * Lencana hijau "TERBARU" (lihat .version-badge di css/custom.css).
+   */
+  function latestVersionBadge() {
+    return (
+      '<span class="version-badge shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">' +
+      'Terbaru' +
+      '</span>'
+    );
+  }
+
+  /**
+   * Bagian "Versi Lain" di bawah tombol unduh. Daftar berasal dari
+   * app.changelog (index 0 = versi terbaru) lewat versionHistory() (js/utils.js):
+   *   - versi terbaru -> lencana "Terbaru" (unduhan sudah ada lewat tombol);
+   *   - versi lama    -> baris tertaut ke GitHub Releases bila tautan tersedia;
+   *   - hanya 1 versi -> tambahan catatan "Belum ada versi lain".
+   * Elemen ini berada DI LUAR #download-area agar tidak ikut terhapus saat
+   * hitung mundur unduhan me-render ulang panel tombol di atasnya.
+   */
+  function otherVersionsHTML(app) {
+    var versi = versionHistory(app);
+
+    var baris = versi
+      .map(function (v) {
+        var isi =
+          '<div class="flex items-center justify-between gap-3">' +
+          '<span class="flex min-w-0 items-baseline gap-2">' +
+          '<span class="text-xs font-bold text-white">v' +
+          escapeHtml(v.version) +
+          '</span>' +
+          '<span class="truncate text-[11px] text-slate-500">' +
+          escapeHtml(v.date) +
+          '</span>' +
+          '</span>' +
+          (v.isLatest
+            ? latestVersionBadge()
+            : v.url
+            ? '<span class="shrink-0 text-slate-500 transition group-hover:text-brand-300">' +
+              ICON_EXTERNAL +
+              '</span>'
+            : '') +
+          '</div>';
+
+        var kotak = 'rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2';
+        return v.url && !v.isLatest
+          ? '<a href="' +
+              escapeHtml(v.url) +
+              '" target="_blank" rel="noopener noreferrer" title="Buka rilis v' +
+              escapeHtml(v.version) +
+              ' di GitHub Releases" class="group block ' +
+              kotak +
+              ' transition hover:border-brand-400/40 hover:bg-white/[0.06]">' +
+              isi +
+              '</a>'
+          : '<div class="' + kotak + '">' + isi + '</div>';
+      })
+      .join('');
+
+    var catatan =
+      versi.length <= 1
+        ? '<p class="mt-2.5 text-[11px] italic text-slate-500">Belum ada versi lain</p>'
+        : '';
+
+    return (
+      '<section class="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4" aria-label="Versi lain">' +
+      '<p class="text-[11px] font-bold uppercase tracking-widest text-slate-500">Versi Lain</p>' +
+      '<div class="mt-3 space-y-2">' +
+      baris +
+      '</div>' +
+      catatan +
+      '</section>'
     );
   }
 
@@ -576,6 +672,7 @@
       escapeHtml(app.technical.ageRating) +
       '</span>' +
       '</div>' +
+      androidMinHTML(app) +
       '<div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1">' +
       starRatingHTML(app.rating) +
       '<span class="text-sm font-bold text-amber-400">' +
@@ -588,10 +685,15 @@
       '</div>' +
       '</div>' +
 
-      '<div class="w-full shrink-0 lg:w-72" id="download-area" data-app-id="' +
+      '<div class="w-full shrink-0 lg:w-72">' +
+      '<div id="download-area" data-app-id="' +
       escapeHtml(app.id) +
       '">' +
       downloadAreaHTML(app) +
+      '</div>' +
+      /* Bagian "Versi Lain" sengaja di LUAR #download-area supaya tetap tampil
+         saat hitung mundur unduhan me-render ulang panel tombol di atasnya. */
+      otherVersionsHTML(app) +
       '</div>' +
       '</div>' +
 

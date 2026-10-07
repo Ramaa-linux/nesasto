@@ -177,7 +177,8 @@
     APPS.forEach(function (a) {
       cek('apkUrl ' + a.id + ' berupa http(s)', /^https?:\/\//.test(a.apkUrl), a.apkUrl);
       cek('apkUrl ' + a.id + ' mengarah ke rilis GitHub',
-        a.apkUrl.indexOf('github.com/Ramaa-linux/nesasto/releases/latest/download/' + a.id + '.apk') !== -1,
+        /^https:\/\/github\.com\/[^\/]+\/[^\/]+\/releases\/download\//.test(a.apkUrl) &&
+        a.apkUrl.slice(-(a.id.length + 5)) === '/' + a.id + '.apk',
         a.apkUrl);
     });
 
@@ -199,6 +200,69 @@
     cek('konsep install sudah dihapus dari utils.js',
       typeof isInstalled === 'undefined' && typeof setInstalled === 'undefined' &&
       typeof getInstalledMap === 'undefined');
+
+    /* --- Versi Android minimum (baris di bawah lencana kategori) --- */
+    cek('androidRequires() membaca technical.requires',
+      androidRequires(APPS[0]) === 'Android 8.0+', androidRequires(APPS[0]));
+    cek('androidRequires() kosong bila data tak ada',
+      androidRequires({}) === '' && androidRequires(null) === '');
+    APPS.forEach(function (a) {
+      cek('technical.requires ' + a.id + ' terisi',
+        androidRequires(a).indexOf('Android') === 0, androidRequires(a));
+    });
+
+    /* --- Bagian "Versi Lain": riwayat versi + tautan GitHub Releases --- */
+    cek('releaseRepoUrl() diturunkan dari apkUrl',
+      releaseRepoUrl(APPS[0]) === 'https://github.com/nesastore/nesastore.github.io',
+      releaseRepoUrl(APPS[0]));
+    cek('releaseRepoUrl() kosong tanpa apkUrl GitHub', releaseRepoUrl({ apkUrl: '' }) === '');
+    cek('releaseTagPrefix() = "v." dari apkUrl + version',
+      releaseTagPrefix(APPS[0]) === 'v.', releaseTagPrefix(APPS[0]));
+    cek('releaseTagPrefix() cadangan "v"',
+      releaseTagPrefix({ apkUrl: 'https://x/y', version: '1.0.0' }) === 'v');
+    cek('releaseTagUrl() menyusun tautan tag',
+      releaseTagUrl(APPS[0], '1.0.0') ===
+        'https://github.com/nesastore/nesastore.github.io/releases/tag/v.1.0.0',
+      releaseTagUrl(APPS[0], '1.0.0'));
+
+    var histSatu = versionHistory(APPS[0]);
+    cek('versionHistory(): 1 versi -> index 0 terbaru', histSatu.length === 1 && histSatu[0].isLatest === true);
+    cek('versionHistory(): versi terbaru tanpa tautan', histSatu[0].url === '');
+    cek('versionHistory(): tanpa changelog -> daftar kosong', versionHistory({}).length === 0);
+
+    var appMulti = {
+      apkUrl: 'https://github.com/nesastore/nesastore.github.io/releases/download/v.1.2.0/app.apk',
+      version: '1.2.0',
+      changelog: [
+        { version: '1.2.0', date: '10 Oktober 2026', type: 'Fitur baru', notes: ['a'] },
+        { version: '1.1.0', date: '20 September 2026', type: 'Perbaikan', notes: ['b'] },
+        { version: '1.0.0', date: '4 September 2026', type: 'Rilis pertama', notes: ['c'] }
+      ]
+    };
+    var histMulti = versionHistory(appMulti);
+    cek('versionHistory(): jumlah = changelog', histMulti.length === 3);
+    cek('versionHistory(): index 0 = terbaru (1.2.0)',
+      histMulti[0].version === '1.2.0' && histMulti[0].isLatest === true);
+    cek('versionHistory(): sisanya bukan terbaru',
+      histMulti[1].isLatest === false && histMulti[2].isLatest === false);
+    cek('versionHistory(): tanggal terbawa', histMulti[1].date === '20 September 2026', histMulti[1].date);
+    cek('versionHistory(): versi lama tertaut ke tag rilis',
+      histMulti[1].url === 'https://github.com/nesastore/nesastore.github.io/releases/tag/v.1.1.0',
+      histMulti[1].url);
+    cek('versionHistory(): versi terlama v.1.0.0',
+      histMulti[2].url.indexOf('/releases/tag/v.1.0.0') !== -1, histMulti[2].url);
+
+    var appManual = {
+      apkUrl: '',
+      version: '2.0.0',
+      changelog: [
+        { version: '2.0.0', date: 'x' },
+        { version: '1.5.0', date: 'y', releaseUrl: 'https://contoh/tag/1.5.0' }
+      ]
+    };
+    cek('versionHistory(): releaseUrl manual dipakai',
+      versionHistory(appManual)[1].url === 'https://contoh/tag/1.5.0',
+      versionHistory(appManual)[1].url);
 
     document.getElementById('hasil').textContent =
       log.join('\n') + '\n\n=== RINGKASAN: ' + (log.length - gagal) + ' lulus, ' + gagal + ' gagal ===';

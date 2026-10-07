@@ -558,6 +558,29 @@ html.dark [class~="from-brand-500/50"] {
   background-color: #30363d !important;
 }
 
+/* ==========================================================================
+   BAGIAN "VERSI LAIN" PADA HALAMAN DETAIL
+   --------------------------------------------------------------------------
+   Warna kartu & baris versi memakai kelas Tailwind yang sudah dipetakan di
+   atas, sehingga otomatis cocok di kedua tema:
+     border-white/10 -> #e2e8f0 (terang) / #30363d (gelap)
+     bg-white/[0.03] -> #ffffff  (terang) / #161b22 (gelap)
+     bg-white/[0.02] -> hampir putih (terang) / #0d1117 (gelap)
+   Lencana "TERBARU" sendiri memakai hijau #22c55e: di mode gelap memakai
+   hijau terang, di mode terang memakai hijau lebih tua agar tetap terbaca
+   di atas latar putih (kontras).
+   ========================================================================== */
+.version-badge {
+  color: #15803d;
+  background-color: rgba(34, 197, 94, 0.16);
+  border-color: rgba(34, 197, 94, 0.45);
+}
+html.dark .version-badge {
+  color: #22c55e;
+  background-color: rgba(34, 197, 94, 0.14);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
 /* Hormati preferensi pengguna yang mengurangi animasi */
 @media (prefers-reduced-motion: reduce) {
   *,
