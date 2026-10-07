@@ -1,4 +1,4 @@
-# NesaStore — Demo Katalog Aplikasi
+# NesaStore — Katalog Aplikasi
 
 Katalog aplikasi (App Store mini) statis tanpa framework dan tanpa build step.
 **NesaStore — "App-Store nya warga NESA".**
@@ -12,7 +12,7 @@ img/logo.png      Logo NesaStore (2340×764) — dipakai di header (logo saja, w
                   "NesaStore" + tagline sudah menyatu di dalam gambar) & favicon
 css/custom.css    Token warna, animasi, gaya tab/chip/kartu, segmented tema,
                   override mode terang, aksesibilitas
-js/data.js        6 aplikasi dummy, CATEGORIES, APP_BY_ID
+js/data.js        4 aplikasi, CATEGORIES, APP_BY_ID
 js/utils.js       escapeHtml, format*, starRatingHTML, categoryBadge, updatedDateHTML, iconTile,
                   placeholderSVG, helper status instal (localStorage), toast
 js/app.js         Render katalog, filter/pencarian/urutan, halaman detail + 4 tab,
@@ -33,7 +33,8 @@ _selftest.html    Alat uji mandiri (dev tool) — lihat bagian di bawah
   tombol sebelumnya/berikutnya + thumbnail, dan daftar aplikasi serupa.
 - **Simulasi instal**: status `Menginstal…` → `Terinstal!` disimpan di `localStorage`
   sehingga tetap tersimpan setelah muat ulang.
-- **Halaman tentang** (`#/tentang`): penjelasan proyek dan panduan pemakaian.
+- **Halaman tentang** (`#/tentang`): penjelasan proyek, panduan **cara pakai** &
+  **cara upload**, serta daftar **teknologi** yang dipakai.
 - **Tema 3-mode** (Terang / Gelap / Sistem) lewat segmented control di header.
   Pilihan disimpan di `localStorage` (`nesastore-theme`), diterapkan sebelum render
   pertama sehingga tidak ada kedipan, dan mode *Sistem* otomatis mengikuti perubahan
@@ -84,7 +85,8 @@ _selftest.html    Alat uji mandiri (dev tool) — lihat bagian di bawah
 - Screenshot galeri adalah **SVG data-URI yang dibuat sendiri** (`placeholderSVG`),
   jadi galeri tetap tampil tanpa koneksi internet. `#` di dalam SVG di-*encode*
   menjadi `%23` agar data-URI valid.
-- Seluruh data aplikasi bersifat fiktif/dummy.
+- Data aplikasi adalah karya mahasiswa; jumlah aplikasi & kreator di footer
+  dihitung otomatis dari `js/data.js` (`APPS`), bukan angka tetap.
 
 ## Menguji: `_selftest.html`
 
@@ -106,4 +108,4 @@ Cari baris terakhir: `=== RINGKASAN: 109 lulus, 0 gagal ===`.
 Verifikasi DOM halaman utama juga bisa memakai perintah serupa dengan menambahkan
 hash rute, misalnya `index.html#/tentang`. Satu-satunya pesan konsol yang muncul
 adalah peringatan bawaan Tailwind CDN ("should not be used in production") — itu
-memang diharapkan untuk demo statis.
+memang diharapkan untuk situs statis tanpa build step.

@@ -25,6 +25,24 @@
     return typeof APP_BY_ID !== 'undefined' ? APP_BY_ID[id] : null;
   }
 
+  /* Jumlah kreator unik di seluruh aplikasi (dipakai statistik footer).
+     Nama diambil dari `developerInfo.founder` yang dipisah koma, lalu
+     dihitung sekali saja agar kreator dengan >1 aplikasi tidak ganda. */
+  function developerCount() {
+    var seen = {};
+    APPS.forEach(function (app) {
+      var info = app && app.developerInfo;
+      if (!info) return;
+      String(info.founder || '')
+        .split(',')
+        .forEach(function (nama) {
+          nama = nama.trim();
+          if (nama) seen[nama] = true;
+        });
+    });
+    return Object.keys(seen).length;
+  }
+
   /* -------------------------------------------------- Filter kategori (chip) */
   function renderCategoryFilters() {
     var wrap = els.categoryFilters;
@@ -983,26 +1001,32 @@
 
       '<div class="mt-4 rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-10">' +
       '<h1 class="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Tentang NesaStore</h1>' +
-      '<p class="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300 sm:text-[15px]">NesaStore (\u201cApp-Store nya warga NESA\u201d) adalah contoh katalog aplikasi (App Store mini) yang dibuat sebagai demo antarmuka. Seluruh aplikasi, kreator, rating, dan changelog di dalamnya bersifat fiktif dan hanya untuk keperluan peragaan.</p>' +
+      '<p class="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300 sm:text-[15px]">NesaStore adalah platform distribusi aplikasi karya mahasiswa UNESA. Satu tempat, satu link, semua karya.</p>' +
       '<div class="mt-6 flex flex-wrap gap-2">' + kategori + '</div>' +
       '</div>' +
 
-      '<div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">' +
-      aboutCard('HTML5', 'Struktur halaman dan markup semantik tanpa framework.') +
-      aboutCard('Tailwind CSS', 'Ditambahkan melalui CDN untuk penataan gaya yang cepat.') +
-      aboutCard('Vanilla JavaScript', 'Routing hash, pencarian, tab, galeri, dan unduhan APK.') +
-      aboutCard('Tanpa server', 'Cukup dibuka langsung lewat peramban (protocol file://).') +
+      '<div class="mt-6 grid gap-5 lg:grid-cols-2">' +
+      aboutStepsCard('Cara pakai', [
+        'Cari aplikasi',
+        'Lihat detail & changelog',
+        'Download APK',
+        'Install manual di HP'
+      ]) +
+      aboutStepsCard('Cara upload', [
+        'Klik “Ajukan Aplikasi” di header',
+        'Isi form',
+        'Tunggu review'
+      ]) +
       '</div>' +
 
       '<div class="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">' +
-      '<h2 class="text-lg font-bold text-white">Cara memakai</h2>' +
-      '<ol class="mt-4 space-y-3 text-sm text-slate-300">' +
-      aboutStep(1, 'Ketik nama aplikasi pada kolom pencarian untuk menyaring katalog.') +
-      aboutStep(2, 'Pilih kategori atau ubah urutan daftar sesuai keinginan.') +
-      aboutStep(3, 'Klik kartu aplikasi atau tombol "Lihat Detail" untuk membuka halaman detail.') +
-      aboutStep(4, 'Tekan tombol "Download APK", tunggu hitung mundur 5 detik, lalu berkas APK mulai diunduh.') +
-      '</ol>' +
-      '<p class="mt-5 text-xs text-slate-500">NesaStore hanya mendistribusikan berkas APK. Proses pemasangan ke perangkat dilakukan di luar situs ini.</p>' +
+      '<h2 class="text-lg font-bold text-white">Teknologi</h2>' +
+      '<div class="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">' +
+      aboutCard('HTML', 'Struktur halaman dan markup semantik.') +
+      aboutCard('Tailwind CSS', 'Antarmuka responsif dengan utilitas CSS.') +
+      aboutCard('Vanilla JavaScript', 'Routing hash, pencarian, filter, dan unduhan APK.') +
+      aboutCard('Cloudflare R2', 'Penyimpanan berkas APK.') +
+      '</div>' +
       '</div>' +
       '</div>';
   }
@@ -1030,6 +1054,25 @@
       escapeHtml(text) +
       '</span>' +
       '</li>'
+    );
+  }
+
+  /* Kartu berisi daftar langkah bernomor (dipakai bagian "Cara pakai" &
+     "Cara upload" pada halaman tentang). */
+  function aboutStepsCard(title, steps) {
+    return (
+      '<div class="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">' +
+      '<h2 class="text-lg font-bold text-white">' +
+      escapeHtml(title) +
+      '</h2>' +
+      '<ol class="mt-4 space-y-3 text-sm text-slate-300">' +
+      steps
+        .map(function (text, i) {
+          return aboutStep(i + 1, text);
+        })
+        .join('') +
+      '</ol>' +
+      '</div>'
     );
   }
 
@@ -1316,10 +1359,20 @@
       catalogView: byId('catalog-view'),
       detailView: byId('detail-view'),
       aboutView: byId('about-view'),
-      yearEl: byId('year')
+      yearEl: byId('year'),
+      footerStats: byId('footer-stats')
     };
 
     if (els.yearEl) els.yearEl.textContent = String(new Date().getFullYear());
+
+    if (els.footerStats) {
+      els.footerStats.innerHTML =
+        '<span class="font-semibold text-slate-300">' +
+        APPS.length +
+        '</span> aplikasi tersedia &middot; <span class="font-semibold text-slate-300">' +
+        developerCount() +
+        '</span> developer';
+    }
 
     renderCategoryFilters();
     initTheme();
