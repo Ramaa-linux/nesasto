@@ -83,6 +83,13 @@ body {
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* --- Baris "Diperbarui" pada kartu katalog --- */
+/* Abu lembut: terbaca jelas namun tidak menyaingi rating/size. Nilai mode
+   gelap ada di blok "MODE GELAP MINIMALIS" (html.dark .app-updated). */
+.app-updated {
+  color: #64748b;
+}
+
 /* --- Tile ikon aplikasi (emoji atau berkas gambar) --- */
 .app-tile {
   position: relative;
@@ -521,6 +528,9 @@ html.dark [class~="text-slate-500"] { color: #6e7681 !important; }
 html.dark [class~="text-slate-600"],
 html.dark [class~="text-slate-600/80"] { color: #484f58 !important; }
 html.dark [class~="placeholder-slate-500"]::placeholder { color: #6e7681 !important; }
+
+/* Baris "Diperbarui" di kartu katalog: abu lebih terang daripada mode terang. */
+html.dark .app-updated { color: #8b949e !important; }
 
 /* --- 5) Lencana & tag: abu-abu netral, bukan warna-warni -------------- */
 html.dark .cat-badge,

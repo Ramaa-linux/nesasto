@@ -24,6 +24,21 @@ function formatRating(n) {
   return (Math.round(n * 10) / 10).toFixed(1);
 }
 
+/**
+ * Tanggal ISO ("2026-10-04") -> "4 Okt 2026" memakai nama bulan singkat
+ * Indonesia. Dipakai baris "Diperbarui" pada kartu katalog. Bila ISO tidak
+ * valid, nilai aslinya dikembalikan apa adanya (degradasi yang aman).
+ */
+function formatDateShort(iso) {
+  var bulan = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+    'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+  ];
+  var d = new Date(iso + 'T00:00:00');
+  if (isNaN(d.getTime())) return iso;
+  return d.getDate() + ' ' + bulan[d.getMonth()] + ' ' + d.getFullYear();
+}
+
 function formatDateLong(iso) {
   var bulan = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -102,6 +117,32 @@ function categoryBadge(category, extra) {
     '"></span>' +
     escapeHtml(category) +
     '</span>'
+  );
+}
+
+/* -------------------------------------------- Baris tanggal pembaruan kartu */
+/**
+ * Baris "Diperbarui: <tanggal>" untuk kartu katalog (tepat di bawah rating):
+ * ikon kalender SVG gaya Feather (outline, 12x12) + teks dari app.updated.
+ * Kelas .app-updated mengatur warnanya di kedua tema
+ * (lihat css/custom.css: mode terang #64748b, mode gelap #8b949e).
+ * Kartu tanpa tanggal mengembalikan string kosong (baris tidak ditampilkan).
+ */
+function updatedDateHTML(app) {
+  var iso = app && app.updated ? String(app.updated) : '';
+  if (!iso) return '';
+  return (
+    '<div class="app-updated mt-1 mb-1 inline-flex items-center gap-1.5 text-xs">' +
+    '<svg class="shrink-0" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>' +
+    '<line x1="16" y1="2" x2="16" y2="6"></line>' +
+    '<line x1="8" y1="2" x2="8" y2="6"></line>' +
+    '<line x1="3" y1="10" x2="21" y2="10"></line>' +
+    '</svg>' +
+    '<span>Diperbarui: ' +
+    escapeHtml(formatDateShort(iso)) +
+    '</span>' +
+    '</div>'
   );
 }
 

@@ -99,6 +99,12 @@
     cek('formatRating(0)', formatRating(0) === '0.0', formatRating(0));
     cek('formatCount(128450)', formatCount(128450).indexOf('128') === 0, formatCount(128450));
     cek('formatDateLong', formatDateLong('2026-10-04') === '4 Oktober 2026', formatDateLong('2026-10-04'));
+    /* --- Baris "Diperbarui" pada kartu katalog --- */
+    cek('formatDateShort(2026-10-04)', formatDateShort('2026-10-04') === '4 Okt 2026', formatDateShort('2026-10-04'));
+    cek('formatDateShort bulan Januari', formatDateShort('2026-01-01') === '1 Jan 2026', formatDateShort('2026-01-01'));
+    cek('formatDateShort tanggal 1 digit tanpa nol di depan', formatDateShort('2026-07-09') === '9 Jul 2026', formatDateShort('2026-07-09'));
+    cek('formatDateShort ISO tidak valid dikembalikan apa adanya',
+      formatDateShort('bukan-tanggal') === 'bukan-tanggal', formatDateShort('bukan-tanggal'));
 
     var bintang = starRatingHTML(4.7);
     cek('starRatingHTML punya 10 svg bintang', (bintang.match(/<svg/g) || []).length === 10);
@@ -106,6 +112,25 @@
 
     cek('categoryBadge kategori dikenal', categoryBadge('Produktivitas').indexOf('sky') !== -1);
     cek('categoryBadge fallback', categoryBadge('Lain').indexOf('slate') !== -1);
+
+    var tanggal = updatedDateHTML(APPS[0]);
+    cek('updatedDateHTML memuat label "Diperbarui: "', tanggal.indexOf('Diperbarui: ') !== -1);
+    cek('updatedDateHTML memakai formatDateShort',
+      tanggal.indexOf('Diperbarui: 4 Okt 2026') !== -1, tanggal);
+    cek('updatedDateHTML memuat ikon kalender SVG',
+      tanggal.indexOf('<svg') !== -1 && tanggal.indexOf('<rect') !== -1 && tanggal.indexOf('<line') !== -1);
+    cek('updatedDateHTML SVG 12x12, outline, currentColor',
+      tanggal.indexOf('width="12"') !== -1 && tanggal.indexOf('height="12"') !== -1 &&
+      tanggal.indexOf('fill="none"') !== -1 && tanggal.indexOf('stroke="currentColor"') !== -1 &&
+      tanggal.indexOf('stroke-width="2"') !== -1);
+    cek('updatedDateHTML memakai kelas .app-updated (warna per tema)',
+      tanggal.indexOf('app-updated') !== -1);
+    cek('updatedDateHTML tanpa updated -> baris kosong',
+      updatedDateHTML({}) === '' && updatedDateHTML(null) === '');
+    APPS.forEach(function (a) {
+      cek('updatedDateHTML ' + a.id + ' memuat tanggal ' + formatDateShort(a.updated),
+        updatedDateHTML(a).indexOf('Diperbarui: ' + formatDateShort(a.updated)) !== -1);
+    });
 
     /* --- Tile ikon: berkas gambar + cadangan emoji --- */
     var tile = iconTile(APPS[0], 'h-16 w-16', 'text-3xl');

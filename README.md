@@ -13,7 +13,7 @@ img/logo.png      Logo NesaStore (2340×764) — dipakai di header (logo saja, w
 css/custom.css    Token warna, animasi, gaya tab/chip/kartu, segmented tema,
                   override mode terang, aksesibilitas
 js/data.js        6 aplikasi dummy, CATEGORIES, APP_BY_ID
-js/utils.js       escapeHtml, format*, starRatingHTML, categoryBadge, iconTile,
+js/utils.js       escapeHtml, format*, starRatingHTML, categoryBadge, updatedDateHTML, iconTile,
                   placeholderSVG, helper status instal (localStorage), toast
 js/app.js         Render katalog, filter/pencarian/urutan, halaman detail + 4 tab,
                   galeri screenshot, aplikasi serupa, halaman tentang, hash router,
@@ -24,6 +24,10 @@ _selftest.html    Alat uji mandiri (dev tool) — lihat bagian di bawah
 ## Fitur
 
 - **Katalog**: pencarian nama, filter kategori (chip), urutan Populer / Rating / Nama / Terbaru.
+- **Kartu katalog** menampilkan **tanggal pembaruan terakhir** (`Diperbarui: 4 Okt 2026`)
+  tepat di bawah rating — diambil dari `app.updated` (ISO), diformat oleh `formatDateShort()`
+  (`js/utils.js`) dan disusun `updatedDateHTML()` dengan ikon kalender SVG. Warnanya
+  menyesuaikan tema: `#64748b` (terang) dan `#8b949e` (gelap).
 - **Halaman detail** (`#/app/<id>`): header aplikasi, tombol instal, 4 tab
   (Deskripsi, Tangkapan Layar, Changelog, Info Teknis), galeri screenshot dengan
   tombol sebelumnya/berikutnya + thumbnail, dan daftar aplikasi serupa.
@@ -83,7 +87,7 @@ _selftest.html    Alat uji mandiri (dev tool) — lihat bagian di bawah
 ## Menguji: `_selftest.html`
 
 `_selftest.html` **sengaja dipertahankan** sebagai dev tool. Halaman ini memuat
-`js/data.js` + `js/utils.js` dan menjalankan 95 pemeriksaan (integritas data,
+`js/data.js` + `js/utils.js` dan menjalankan 109 pemeriksaan (integritas data,
 helper format, validitas data-URI SVG, ketersediaan `localStorage` di `file://`,
 dan bolak-balik status instal), lalu menulis ringkasannya ke `<pre id="hasil">`.
 
@@ -95,7 +99,7 @@ Buka langsung di peramban, atau otomatis lewat headless Chrome:
   --dump-dom 'file:///D:/Program/tes kode/Nyoba agent/_selftest.html'
 ```
 
-Cari baris terakhir: `=== RINGKASAN: 95 lulus, 0 gagal ===`.
+Cari baris terakhir: `=== RINGKASAN: 109 lulus, 0 gagal ===`.
 
 Verifikasi DOM halaman utama juga bisa memakai perintah serupa dengan menambahkan
 hash rute, misalnya `index.html#/tentang`. Satu-satunya pesan konsol yang muncul
