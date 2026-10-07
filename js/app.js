@@ -130,6 +130,9 @@
       ')</span>' +
       '</div>' +
 
+      /* Tanggal pembaruan terakhir (app.updated) — tepat di bawah rating. */
+      updatedDateHTML(app) +
+
       '<div class="mt-5 flex items-center justify-between gap-3 border-t border-white/5 pt-4">' +
       '<div class="flex min-w-0 items-center gap-2 text-[11px] font-medium text-slate-500">' +
       '<span>' +
